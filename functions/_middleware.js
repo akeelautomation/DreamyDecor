@@ -42,8 +42,14 @@ export async function onRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);
 
-  const paymentMode = String(env?.PAYMENT_MODE || "demo").toLowerCase();
-  const allowPayPal = paymentMode === "paypal";
+  const normalizePaymentMode = (raw) => {
+    const v = String(raw || "auto").toLowerCase().trim();
+    return v === "demo" || v === "paypal" || v === "auto" ? v : "auto";
+  };
+
+  const paymentMode = normalizePaymentMode(env?.PAYMENT_MODE);
+  const paypalClientId = env?.PAYPAL_CLIENT_ID ? String(env.PAYPAL_CLIENT_ID) : "";
+  const allowPayPal = paymentMode === "paypal" || (paymentMode === "auto" && paypalClientId);
 
   const res = await context.next();
   const headers = new Headers(res.headers);

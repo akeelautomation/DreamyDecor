@@ -94,7 +94,19 @@ export const onRequestPost = async ({ request, env }) => {
     return Response.json({ ok: false, error: "Missing orderId." }, { status: 400 });
   }
 
-  const paymentMode = String(env?.PAYMENT_MODE || "demo").toLowerCase();
+  const normalizePaymentMode = (raw) => {
+    const v = String(raw || "auto").toLowerCase().trim();
+    return v === "demo" || v === "paypal" || v === "auto" ? v : "auto";
+  };
+
+  const paymentModeRequested = normalizePaymentMode(env?.PAYMENT_MODE);
+  const paypalClientId = String(env?.PAYPAL_CLIENT_ID || "");
+  const paypalConfigured = Boolean(
+    paypalClientId && env?.PAYPAL_CLIENT_SECRET && String(env.PAYPAL_CLIENT_SECRET).length > 0,
+  );
+  const paymentModeEffective =
+    paymentModeRequested === "auto" ? (paypalConfigured ? "paypal" : "demo") : paymentModeRequested;
+
   const now = Math.floor(Date.now() / 1000);
   const payloadBase = {
     iss: "dreamy-decor",
@@ -105,10 +117,10 @@ export const onRequestPost = async ({ request, env }) => {
     amount: "1.00",
     currency: "USD",
     orderId,
-    mode: paymentMode,
+    mode: paymentModeEffective,
   };
 
-  if (paymentMode !== "paypal") {
+  if (paymentModeEffective !== "paypal") {
     try {
       const token = await signReceiptToken(env, payloadBase);
       return Response.json({ ok: true, mode: "demo", receiptToken: token }, { status: 200 });

@@ -1,15 +1,27 @@
 export const onRequestGet = async ({ env }) => {
-  const paymentMode = String(env?.PAYMENT_MODE || "demo").toLowerCase();
+  const normalizePaymentMode = (raw) => {
+    const v = String(raw || "auto").toLowerCase().trim();
+    return v === "demo" || v === "paypal" || v === "auto" ? v : "auto";
+  };
+
+  const paymentModeRequested = normalizePaymentMode(env?.PAYMENT_MODE);
   const paypalClientId = env?.PAYPAL_CLIENT_ID ? String(env.PAYPAL_CLIENT_ID) : null;
   const paypalConfigured = Boolean(
     paypalClientId && env?.PAYPAL_CLIENT_SECRET && String(env.PAYPAL_CLIENT_SECRET).length > 0,
   );
+  const paymentModeEffective =
+    paymentModeRequested === "auto" ? (paypalConfigured ? "paypal" : "demo") : paymentModeRequested;
   const jwtConfigured = Boolean(
     env?.PAYMENT_JWT_SECRET && String(env.PAYMENT_JWT_SECRET).length >= 32,
   );
 
   const paymentEnabled =
-    jwtConfigured && (paymentMode === "demo" ? true : paymentMode === "paypal" ? paypalConfigured : false);
+    jwtConfigured &&
+    (paymentModeEffective === "demo"
+      ? true
+      : paymentModeEffective === "paypal"
+        ? paypalConfigured
+        : false);
 
   const kieApiKey = env?.KIE_API_KEY ? String(env.KIE_API_KEY) : env?.NANO_BANANA_API_KEY ? String(env.NANO_BANANA_API_KEY) : null;
   const nanoBananaEnabled = Boolean(kieApiKey);
@@ -26,7 +38,8 @@ export const onRequestGet = async ({ env }) => {
       enabled: paymentEnabled,
       jwtConfigured,
       paypalConfigured,
-      mode: paymentMode,
+      mode: paymentModeRequested,
+      modeEffective: paymentModeEffective,
       paypalClientId,
     },
     nanoBanana: {

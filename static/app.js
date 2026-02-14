@@ -543,12 +543,22 @@ async function demoPayFlow() {
   toast("Payment confirmed.");
 }
 
+function paymentModeRequested() {
+  const p = state.config && state.config.payment ? state.config.payment : null;
+  return String(p?.modeRequested || p?.mode || "auto").toLowerCase();
+}
+
+function paymentModeEffective() {
+  const p = state.config && state.config.payment ? state.config.payment : null;
+  return String(p?.modeEffective || p?.mode || "demo").toLowerCase();
+}
+
 function paypalEnabled() {
   return Boolean(
     state.config &&
       state.config.payment &&
       state.config.payment.enabled &&
-      state.config.payment.mode === "paypal" &&
+      paymentModeEffective() === "paypal" &&
       state.config.payment.paypalClientId,
   );
 }
@@ -633,7 +643,9 @@ async function refreshPaymentUi() {
     els.paymentStatus.textContent = "Not configured";
     const needs = [];
     if (!state.config.payment.jwtConfigured) needs.push("PAYMENT_JWT_SECRET (secret)");
-    if (state.config.payment.mode === "paypal") {
+    const requested = paymentModeRequested();
+    const wantsPayPal = requested === "paypal" || (requested === "auto" && state.config.payment.paypalClientId);
+    if (wantsPayPal) {
       if (!state.config.payment.paypalClientId) needs.push("PAYPAL_CLIENT_ID");
       if (!state.config.payment.paypalConfigured) needs.push("PAYPAL_CLIENT_SECRET (secret)");
     }

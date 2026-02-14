@@ -33,8 +33,20 @@ export const onRequestPost = async ({ request, env }) => {
     // ignore
   }
 
-  const paymentMode = String(env?.PAYMENT_MODE || "demo").toLowerCase();
-  if (paymentMode !== "paypal") {
+  const normalizePaymentMode = (raw) => {
+    const v = String(raw || "auto").toLowerCase().trim();
+    return v === "demo" || v === "paypal" || v === "auto" ? v : "auto";
+  };
+
+  const paymentModeRequested = normalizePaymentMode(env?.PAYMENT_MODE);
+  const paypalClientId = String(env?.PAYPAL_CLIENT_ID || "");
+  const paypalConfigured = Boolean(
+    paypalClientId && env?.PAYPAL_CLIENT_SECRET && String(env.PAYPAL_CLIENT_SECRET).length > 0,
+  );
+  const paymentModeEffective =
+    paymentModeRequested === "auto" ? (paypalConfigured ? "paypal" : "demo") : paymentModeRequested;
+
+  if (paymentModeEffective !== "paypal") {
     return Response.json(
       { ok: true, mode: "demo", orderId: `demo-${crypto.randomUUID()}`, amountUsd },
       { status: 200 },
@@ -79,4 +91,3 @@ export const onRequestPost = async ({ request, env }) => {
     return Response.json({ ok: false, error: e?.message || "Payment error." }, { status: 500 });
   }
 };
-

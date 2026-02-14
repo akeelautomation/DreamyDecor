@@ -29,10 +29,11 @@ Required for secure receipt tokens:
 - `PAYMENT_JWT_SECRET` (set a long random string, 32+ chars, store as a **Secret**)
 
 Modes:
-- `PAYMENT_MODE=demo` (default if unset)
-- `PAYMENT_MODE=paypal`
+- `PAYMENT_MODE=auto` (default if unset): uses PayPal if it is configured, otherwise falls back to demo mode
+- `PAYMENT_MODE=demo` (always demo)
+- `PAYMENT_MODE=paypal` (force PayPal)
 
-PayPal (when `PAYMENT_MODE=paypal`):
+PayPal (when mode is effectively `paypal`):
 - `PAYPAL_ENV=sandbox` or `PAYPAL_ENV=live`
 - `PAYPAL_CLIENT_ID=...`
 - `PAYPAL_CLIENT_SECRET=...` (store as a **Secret**)

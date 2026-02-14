@@ -8,3 +8,6 @@
 # Wrangler / tooling
 .wrangler/
 node_modules/
+
+# Local logs
+wrangler-dev.*

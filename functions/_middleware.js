@@ -1,23 +1,23 @@
 function baseCsp({ allowPayPal }) {
   const scriptSrc = ["'self'"];
   const connectSrc = ["'self'"];
-  const frameSrc = [];
+  const frameSrc = ["'self'"];
+  const childSrc = ["'self'"];
   const imgSrc = ["'self'", "data:", "blob:"];
   const styleSrc = ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"];
   const fontSrc = ["'self'", "data:", "https://fonts.gstatic.com"];
 
   if (allowPayPal) {
-    scriptSrc.push("https://www.paypal.com");
-    scriptSrc.push("https://www.paypalobjects.com");
-    connectSrc.push(
-      "https://www.paypal.com",
-      "https://www.sandbox.paypal.com",
-      "https://api-m.paypal.com",
-      "https://api-m.sandbox.paypal.com",
-      "https://www.paypalobjects.com",
-    );
-    frameSrc.push("https://www.paypal.com", "https://www.sandbox.paypal.com");
-    imgSrc.push("https://www.paypalobjects.com", "https://www.paypal.com");
+    // PayPal JS SDK CSP guidance:
+    // https://developer.paypal.com/sdk/js/csp/ (or /sdk/js/best-practices/)
+    const paypalHosts = ["*.paypal.com", "*.paypalobjects.com", "*.venmo.com"];
+
+    scriptSrc.push(...paypalHosts, "'unsafe-inline'");
+    styleSrc.push(...paypalHosts);
+    connectSrc.push(...paypalHosts);
+    frameSrc.push(...paypalHosts);
+    childSrc.push(...paypalHosts);
+    imgSrc.push(...paypalHosts);
   }
 
   // Note: if you add other third-party scripts, update this CSP accordingly.
@@ -31,8 +31,9 @@ function baseCsp({ allowPayPal }) {
     `style-src ${styleSrc.join(" ")}`,
     `script-src ${scriptSrc.join(" ")}`,
     `connect-src ${connectSrc.join(" ")}`,
+    `child-src ${childSrc.join(" ")}`,
     `font-src ${fontSrc.join(" ")}`,
-    frameSrc.length ? `frame-src ${frameSrc.join(" ")}` : null,
+    `frame-src ${frameSrc.join(" ")}`,
   ]
     .filter(Boolean)
     .join("; ");

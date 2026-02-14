@@ -577,7 +577,7 @@ async function loadPayPalSdk(clientId) {
     const s = document.createElement("script");
     s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(
       clientId,
-    )}&currency=USD&intent=capture`;
+    )}&components=buttons&currency=USD&intent=capture&commit=true&vault=false`;
     s.async = true;
     s.onload = () => resolve();
     s.onerror = () => reject(new Error("Failed to load PayPal SDK."));
@@ -601,14 +601,17 @@ async function renderPayPalButtons() {
   window.paypal
     .Buttons({
       createOrder: async () => {
+        els.paymentStatus.textContent = "Creating order...";
         const orderRes = await fetch("/api/payment/create-order", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ amountUsd: 1 }),
         });
-        if (!orderRes.ok) throw new Error("Failed to create order.");
-        const order = await orderRes.json();
-        state.orderId = order.orderId;
+        const order = await orderRes.json().catch(() => ({}));
+        if (!orderRes.ok || !order?.orderId) {
+          throw new Error(order?.error || "Failed to create PayPal order.");
+        }
+        state.orderId = String(order.orderId);
         return state.orderId;
       },
       onApprove: async (data) => {
@@ -618,9 +621,10 @@ async function renderPayPalButtons() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ orderId: data.orderID }),
         });
-        if (!capRes.ok) throw new Error("Capture failed.");
-        const cap = await capRes.json();
-        if (!cap.receiptToken) throw new Error("Missing receipt token.");
+        const cap = await capRes.json().catch(() => ({}));
+        if (!capRes.ok || !cap?.receiptToken) {
+          throw new Error(cap?.error || "Failed to capture PayPal payment.");
+        }
         state.receiptToken = cap.receiptToken;
         els.paymentStatus.textContent = "Paid";
         els.generateBtn.disabled = false;
@@ -629,7 +633,8 @@ async function renderPayPalButtons() {
       },
       onError: (err) => {
         console.error(err);
-        toast("PayPal error. Try again.");
+        const msg = err && typeof err === "object" && "message" in err ? String(err.message) : "PayPal error.";
+        toast(msg);
         els.paymentStatus.textContent = "Error";
       },
     })

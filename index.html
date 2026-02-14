@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <meta
+      name="description"
+      content="Upload your empty space, pick a style, pay $1, and get a redesigned image. Private by default: we do not store your photos. SAVE YOUR IMAGE after generation."
+    />
+    <title>DREAMY DECOR</title>
+
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600..900&family=Space+Grotesk:wght@400..700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <div class="bg" aria-hidden="true"></div>
+
+    <header class="top">
+      <a class="brand" href="/" aria-label="DREAMY DECOR home">
+        <span class="brand__mark" aria-hidden="true">DD</span>
+        <span class="brand__word">DREAMY DECOR</span>
+      </a>
+      <nav class="nav">
+        <a class="nav__link" href="/privacy.html">Privacy</a>
+      </nav>
+    </header>
+
+    <main class="shell">
+      <section class="studio">
+        <div class="controls">
+          <div class="intro">
+            <div class="intro__eyebrow">AI Interior Redesign</div>
+            <h1 class="intro__title">Make it feel finished.</h1>
+            <p class="intro__sub">
+              Upload your empty space, choose a style, pay <strong>$1 per image</strong>, and get a
+              redesigned photo.
+            </p>
+            <div class="badges">
+              <div class="badge">
+                <span class="badge__k">Privacy</span>
+                <span class="badge__v">We don't store your photos on our servers.</span>
+              </div>
+              <div class="badge badge--warn">
+                <span class="badge__k">Important</span>
+                <span class="badge__v">SAVE YOUR IMAGE after it appears.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="steps" role="tablist" aria-label="Create image steps">
+              <button class="step step--active" type="button" data-step="1" role="tab">
+                1 Upload
+              </button>
+              <button class="step" type="button" data-step="2" role="tab" disabled>
+                2 Style
+              </button>
+              <button class="step" type="button" data-step="3" role="tab" disabled>
+                3 Pay
+              </button>
+              <button class="step" type="button" data-step="4" role="tab" disabled>
+                4 Result
+              </button>
+            </div>
+
+            <div class="panel panel--active" data-panel="1">
+              <div class="field">
+                <label class="label" for="photo">Upload an empty room photo</label>
+                <input class="input" id="photo" name="photo" type="file" accept="image/*" />
+                <p class="hint">
+                  Tip: bright, wide-angle photos work best. Supported: JPG/PNG/WebP.
+                </p>
+              </div>
+
+              <div class="field field--row">
+                <div class="toggle">
+                  <input id="stripMeta" type="checkbox" checked />
+                  <label for="stripMeta">Strip metadata + resize (recommended)</label>
+                </div>
+                <div class="mini">
+                  <span class="mini__k">Max side</span>
+                  <span class="mini__v">1920px</span>
+                </div>
+              </div>
+
+              <div class="actions">
+                <button class="btn btn--primary" type="button" id="toStyle" disabled>
+                  Continue
+                </button>
+              </div>
+            </div>
+
+            <div class="panel" data-panel="2">
+              <div class="grid2">
+                <div class="field">
+                  <label class="label" for="space">Space</label>
+                  <select class="select" id="space" name="space">
+                    <option value="kitchen">Kitchen</option>
+                    <option value="living-room" selected>Living room</option>
+                    <option value="bedroom">Bedroom</option>
+                    <option value="bathroom">Bathroom</option>
+                    <option value="office">Office</option>
+                    <option value="balcony">Balcony</option>
+                    <option value="patio">Patio</option>
+                    <option value="dining-room">Dining room</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label class="label" for="budget">Budget feel</label>
+                  <select class="select" id="budget" name="budget">
+                    <option value="affordable">Affordable</option>
+                    <option value="mid" selected>Mid-range</option>
+                    <option value="luxury">Luxury</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="labelRow">
+                  <label class="label" for="style">Design style</label>
+                  <span class="labelNote">Choose one</span>
+                </div>
+                <div class="styleGrid" id="styleGrid" role="listbox" aria-label="Style options">
+                  <!-- populated by JS -->
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="label" for="notes">Notes (optional)</label>
+                <textarea
+                  class="textarea"
+                  id="notes"
+                  name="notes"
+                  rows="3"
+                  maxlength="260"
+                  placeholder="Example: keep the existing floors, add warm lighting, lots of plants, no TV."
+                ></textarea>
+                <p class="hint">Keep it short. We don't store notes after generation either.</p>
+              </div>
+
+              <div class="actions">
+                <button class="btn" type="button" data-back="1">Back</button>
+                <button class="btn btn--primary" type="button" id="toPay" disabled>
+                  Continue to payment
+                </button>
+              </div>
+            </div>
+
+            <div class="panel" data-panel="3">
+              <div class="price">
+                <div class="price__tag">$1</div>
+                <div class="price__copy">
+                  <div class="price__title">One image generation</div>
+                  <div class="price__sub">Pay once. Generate once.</div>
+                </div>
+              </div>
+
+              <div class="payBox" id="payBox">
+                <div class="payBox__row">
+                  <div class="payBox__k">Payment</div>
+                  <div class="payBox__v" id="paymentStatus">Loading...</div>
+                </div>
+                <div class="payBox__actions" id="payActions"></div>
+                <p class="hint">
+                  After payment is confirmed, we generate your image. We do not keep copies.
+                </p>
+              </div>
+
+              <div class="actions">
+                <button class="btn" type="button" data-back="2">Back</button>
+                <button class="btn btn--primary" type="button" id="generateBtn" disabled>
+                  Generate
+                </button>
+              </div>
+            </div>
+
+            <div class="panel" data-panel="4">
+              <div class="done">
+                <div class="done__top">
+                  <div class="done__title">Your image is ready.</div>
+                  <div class="done__warn">SAVE YOUR IMAGE. We delete outputs and don't keep copies.</div>
+                </div>
+                <p class="hint">
+                  If you close this tab, you might not be able to retrieve the image again.
+                </p>
+                <div class="actions actions--spread">
+                  <button class="btn" type="button" id="startOver">Start over</button>
+                  <a class="btn btn--primary" id="downloadBtn" download="dreamy-decor.png" href="#">
+                    Download PNG
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+          </div>
+        </div>
+
+        <aside class="stage" aria-label="Preview and result">
+          <div class="stage__head">
+            <div class="stage__headL">
+              <div class="stage__kicker">Canvas</div>
+              <div class="stage__meta" id="previewMeta">Upload a photo to begin.</div>
+            </div>
+            <button class="btn stage__pick" type="button" id="pickFileBtn">Choose photo</button>
+          </div>
+
+          <div class="stage__body" id="dropZone">
+            <div class="stage__empty" id="stageEmpty">
+              <div class="stage__emptyTitle">Drop a room photo here</div>
+              <div class="stage__emptySub">Private by default. We don't store images on our servers.</div>
+              <div class="stage__emptyHint">JPG, PNG, WebP. Bright photos work best.</div>
+            </div>
+
+            <div class="compare" id="compare" hidden>
+              <div class="compare__frame">
+                <img class="compare__img" id="previewImg" alt="Original upload preview" />
+                <div class="compare__after" id="afterWrap" hidden>
+                  <img class="compare__img" id="resultImg" alt="Generated design result" />
+                </div>
+                <div class="compare__line" id="compareLine" aria-hidden="true"></div>
+              </div>
+              <input
+                class="compare__range"
+                id="compareRange"
+                type="range"
+                min="0"
+                max="100"
+                value="56"
+                aria-label="Compare before and after"
+                hidden
+              />
+              <div class="compare__labels" id="compareLabels" aria-hidden="true" hidden>
+                <span>Before</span>
+                <span>After</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="stage__foot">
+            <div class="stage__note" id="stageNote">
+              Upload, pick a style, pay $1, then generate. SAVE YOUR IMAGE after it appears.
+            </div>
+            <a
+              class="btn btn--primary stage__download"
+              id="stageDownloadBtn"
+              download="dreamy-decor.png"
+              href="#"
+              hidden
+            >
+              Download PNG
+            </a>
+          </div>
+        </aside>
+      </section>
+
+      <section class="footer">
+        <div class="footer__left">
+          <div class="footBrand">DREAMY DECOR</div>
+          <div class="footNote">Private by default. Built for Cloudflare Pages.</div>
+        </div>
+        <div class="footer__right">
+          <a class="nav__link" href="/privacy.html">Privacy</a>
+        </div>
+      </section>
+    </main>
+
+    <script src="/static/app.js" type="module"></script>
+  </body>
+</html>

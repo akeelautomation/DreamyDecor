@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>DREAMY DECOR | Privacy</title>
+
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600..900&family=Space+Grotesk:wght@400..700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/style.css" />
+
+    <style>
+      .doc{max-width:980px;margin:0 auto;padding:10px 22px 34px}
+      .docCard{
+        border-radius:calc(var(--r) + 10px);
+        background:linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.56));
+        border:1px solid rgba(20,18,26,.10);
+        box-shadow:var(--shadow);
+        backdrop-filter:blur(12px);
+        padding:18px;
+      }
+      .doc h1{font-family:var(--display);margin:0 0 10px;font-size:42px;letter-spacing:-.01em}
+      .doc p,.doc li{color:var(--muted);line-height:1.6}
+      .doc a{color:var(--ink)}
+      .doc .warn{color:rgba(179,58,42,.94);font-weight:900;letter-spacing:.14em;text-transform:uppercase;font-size:12px}
+      .doc ul{padding-left:18px}
+    </style>
+  </head>
+  <body>
+    <div class="bg" aria-hidden="true"></div>
+
+    <header class="top">
+      <a class="brand" href="/" aria-label="DREAMY DECOR home">
+        <span class="brand__mark" aria-hidden="true">DD</span>
+        <span class="brand__word">DREAMY DECOR</span>
+      </a>
+      <nav class="nav">
+        <a class="nav__link" href="/">Home</a>
+      </nav>
+    </header>
+
+    <main class="doc">
+      <div class="docCard">
+        <p class="warn">SAVE YOUR IMAGE after generation. We don't keep copies.</p>
+        <h1>Privacy</h1>
+        <p>
+          DREAMY DECOR is designed to feel safe and private. The goal is simple: generate your
+          redesigned image, then discard it from our servers.
+        </p>
+        <ul>
+          <li>
+            We do not store your uploaded photos or generated outputs on our servers. To generate
+            an image, your photo is sent to our AI provider for processing; they may temporarily
+            store it (for example, uploads may be retained up to 3 days and output links may expire
+            within about 24 hours). SAVE YOUR IMAGE.
+          </li>
+          <li>
+            Your browser may keep temporary copies (preview, download history, cache) depending on
+            your device and settings.
+          </li>
+          <li>
+            Our hosting provider (Cloudflare Pages) may keep standard request logs/metrics (like IP,
+            timestamps, and route). We do not intentionally log image contents.
+          </li>
+          <li>
+            Payments are handled by a payment processor (PayPal will be integrated). They may store
+            transaction details needed to process your payment.
+          </li>
+        </ul>
+        <p>If you have questions, add a contact method here later (email/support link).</p>
+      </div>
+    </main>
+  </body>
+</html>

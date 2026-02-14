@@ -1,0 +1,10 @@
+# Local secrets / env
+.env
+.env.*
+.dev.vars
+.dev.vars.*
+!.env.example
+
+# Wrangler / tooling
+.wrangler/
+node_modules/

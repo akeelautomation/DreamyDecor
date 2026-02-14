@@ -503,7 +503,15 @@ async function loadConfig() {
     state.config = {
       appName: "DREAMY DECOR",
       priceUsd: 1,
-      payment: { enabled: true, mode: "demo", paypalClientId: null },
+      payment: {
+        enabled: false,
+        backendOnline: false,
+        jwtConfigured: false,
+        paypalConfigured: false,
+        mode: "auto",
+        modeEffective: "demo",
+        paypalClientId: null,
+      },
       nanoBanana: { enabled: false },
     };
   }
@@ -636,6 +644,14 @@ async function refreshPaymentUi() {
 
   if (!state.config || !state.config.payment) {
     els.paymentStatus.textContent = "Unavailable";
+    return;
+  }
+
+  if (state.config.payment.backendOnline === false) {
+    els.paymentStatus.textContent = "Backend offline";
+    const hint =
+      "Local APIs are not running. Start: cmd /c npx wrangler pages dev . --port 8788 (then open http://localhost:8788/).";
+    els.payActions.innerHTML = `<div class="hint">${escapeHtml(hint)}</div>`;
     return;
   }
 

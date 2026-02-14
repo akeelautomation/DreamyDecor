@@ -68,3 +68,10 @@ npx wrangler pages dev . --port 8788
 ```
 
 Then open `http://localhost:8788/`.
+
+Windows note: if PowerShell blocks `npx.ps1`, run it via `cmd`:
+```bash
+cmd /c npx wrangler pages dev . --port 8788
+```
+
+Local env vars: create a `.dev.vars` file in the repo root (ignored by git) for secrets like `PAYMENT_JWT_SECRET`, `KIE_API_KEY`, and PayPal credentials.

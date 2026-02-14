@@ -440,6 +440,70 @@ body{
 .ctaBand__s{margin-top:6px; color:var(--muted); line-height:1.5}
 .ctaBand__a{flex:0 0 auto}
 
+.doc{
+  max-width:980px;
+  margin:0 auto;
+  padding:10px 22px 34px;
+}
+.docCard{
+  border-radius:calc(var(--r) + 10px);
+  background:linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.56));
+  border:1px solid rgba(20,18,26,.10);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(12px);
+  padding:18px;
+}
+.crumbs{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+  color:rgba(20,18,26,.62);
+  font-size:12px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  font-weight:900;
+}
+.crumbs a{color:inherit; text-decoration:none}
+.crumbs a:hover{color:rgba(20,18,26,.88)}
+.prose h1{
+  font-family:var(--display);
+  margin:12px 0 10px;
+  font-size:44px;
+  letter-spacing:-.01em;
+  line-height:1.05;
+}
+.prose h2{
+  font-family:var(--display);
+  margin:18px 0 8px;
+  font-size:26px;
+  letter-spacing:-.01em;
+}
+.prose p,.prose li{
+  color:var(--muted);
+  line-height:1.65;
+  font-size:15px;
+}
+.prose ul{padding-left:18px}
+.prose a{color:var(--ink)}
+.prose strong{color:rgba(20,18,26,.88)}
+.callout{
+  margin:14px 0;
+  border-radius:18px;
+  border:1px solid rgba(20,18,26,.10);
+  background:rgba(255,255,255,.62);
+  box-shadow:0 12px 30px rgba(20,18,26,.08);
+  padding:12px 12px;
+}
+.callout__k{
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:rgba(20,18,26,.62);
+}
+.callout__v{margin-top:6px; color:rgba(20,18,26,.72); line-height:1.55}
+
 .studio{
   display:grid;
   grid-template-columns: minmax(360px, 520px) 1fr;
@@ -998,4 +1062,6 @@ body{
   .hero{padding:18px}
   .tile__title{font-size:22px}
   .how{padding:16px}
+  .doc{padding:8px 16px 26px}
+  .prose h1{font-size:36px}
 }

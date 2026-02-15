@@ -17,7 +17,7 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600..900&family=Space+Grotesk:wght@400..700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="static/style.css?v=20260214" />
+    <link rel="stylesheet" href="static/style.css?v=20260215" />
   </head>
   <body>
     <div class="bg" aria-hidden="true"></div>
@@ -182,7 +182,7 @@
               <div class="done">
                 <div class="done__top">
                   <div class="done__title">Your image is ready.</div>
-                  <div class="done__warn">SAVE YOUR IMAGE. We delete outputs and don't keep copies.</div>
+                  <div class="done__warn">SAVE YOUR IMAGE. For privacy, we do not store uploads or generated images.</div>
                 </div>
                 <p class="hint">If you close this tab, you might not be able to retrieve the image again.</p>
                 <div class="actions actions--spread">
@@ -240,8 +240,19 @@
           </div>
 
           <div class="stage__foot">
-            <div class="stage__note" id="stageNote">
-              Upload, pick a style, pay $1, then generate. SAVE YOUR IMAGE after it appears.
+            <div class="stage__footL">
+              <div class="stage__note" id="stageNote">
+                Upload, pick a style, pay $1, then generate. SAVE YOUR IMAGE after it appears.
+              </div>
+              <div class="stage__progress" id="stageProgress" hidden>
+                <div class="stage__progressMsg" id="stageProgressMsg">
+                  Generating... this can take around 2-3 minutes. Please keep this tab open. SAVE YOUR IMAGE when it
+                  appears (we do not store uploads or generated images for privacy).
+                </div>
+                <div class="stage__bar" aria-hidden="true">
+                  <div class="stage__barInd"></div>
+                </div>
+              </div>
             </div>
             <a
               class="btn btn--primary stage__download"
@@ -267,6 +278,6 @@
       </section>
     </main>
 
-    <script src="static/app.js?v=20260214" type="module"></script>
+    <script src="static/app.js?v=20260215" type="module"></script>
   </body>
 </html>

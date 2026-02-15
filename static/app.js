@@ -244,6 +244,8 @@ const els = {
   dropZone: $("#dropZone"),
   stageEmpty: $("#stageEmpty"),
   stageNote: $("#stageNote"),
+  stageProgress: $("#stageProgress"),
+  stageProgressMsg: $("#stageProgressMsg"),
   stageDownloadBtn: $("#stageDownloadBtn"),
 
   compare: $("#compare"),
@@ -290,6 +292,26 @@ function toast(msg) {
   toast._t = setTimeout(() => {
     els.toast.hidden = true;
   }, 3200);
+}
+
+function genProgressMsg(st) {
+  const s = st ? `Generating (${st})... ` : "Generating... ";
+  return (
+    s +
+    "This can take around 2-3 minutes. Please keep this tab open. " +
+    "SAVE YOUR IMAGE when it appears (we do not store uploads or generated images for privacy)."
+  );
+}
+
+function showStageProgress(st) {
+  if (!els.stageProgress) return;
+  if (els.stageProgressMsg) els.stageProgressMsg.textContent = genProgressMsg(st);
+  els.stageProgress.hidden = false;
+}
+
+function hideStageProgress() {
+  if (!els.stageProgress) return;
+  els.stageProgress.hidden = true;
 }
 
 function setStep(stepNum) {
@@ -547,7 +569,7 @@ async function demoPayFlow() {
   state.receiptToken = cap.receiptToken;
   els.paymentStatus.textContent = "Paid (demo)";
   els.generateBtn.disabled = false;
-  els.stageNote.textContent = "Payment confirmed. Generate your image (then SAVE IT).";
+  els.stageNote.textContent = "Payment confirmed. Click Generate (can take 2-3 minutes). Then SAVE YOUR IMAGE.";
   toast("Payment confirmed.");
 }
 
@@ -600,6 +622,7 @@ async function renderPayPalButtons() {
 
   window.paypal
     .Buttons({
+      style: { height: 50 },
       createOrder: async () => {
         els.paymentStatus.textContent = "Creating order...";
         const orderRes = await fetch("/api/payment/create-order", {
@@ -628,7 +651,7 @@ async function renderPayPalButtons() {
         state.receiptToken = cap.receiptToken;
         els.paymentStatus.textContent = "Paid";
         els.generateBtn.disabled = false;
-        els.stageNote.textContent = "Payment confirmed. Generate your image (then SAVE IT).";
+        els.stageNote.textContent = "Payment confirmed. Click Generate (can take 2-3 minutes). Then SAVE YOUR IMAGE.";
         toast("Payment confirmed.");
       },
       onError: (err) => {
@@ -826,6 +849,7 @@ async function pollForImage({ taskId, token, timeoutMs = 6 * 60 * 1000 }) {
 
     const st = prettyTaskState(data?.state);
     els.stageNote.textContent = `Generating (${st})...`;
+    showStageProgress(st);
 
     await sleep(delayMs);
     delayMs = Math.min(6000, Math.round(delayMs * 1.25));
@@ -835,6 +859,7 @@ async function pollForImage({ taskId, token, timeoutMs = 6 * 60 * 1000 }) {
 }
 
 function showResultFromBlob(blob) {
+  hideStageProgress();
   revokeUrl("result");
   state.resultUrl = URL.createObjectURL(blob);
 
@@ -868,6 +893,7 @@ async function generate() {
   let generated = false;
   els.generateBtn.disabled = true;
   els.generateBtn.textContent = "Starting...";
+  showStageProgress();
 
   try {
     const fd = new FormData();
@@ -919,7 +945,8 @@ async function generate() {
 
     if (data && data.taskId) {
       els.generateBtn.textContent = "Generating...";
-      els.stageNote.textContent = "Generating... (usually under a minute)";
+      els.stageNote.textContent = "Generating... (this can take around 2-3 minutes)";
+      showStageProgress();
       const outBlob = await pollForImage({ taskId: data.taskId, token: state.receiptToken });
       showResultFromBlob(outBlob);
       toast("Generated. SAVE YOUR IMAGE.");
@@ -929,6 +956,7 @@ async function generate() {
 
     throw new Error(data?.error || "Unexpected response from server.");
   } finally {
+    hideStageProgress();
     els.generateBtn.textContent = "Generate";
     if (generated) {
       // One payment -> one generation.
@@ -943,6 +971,7 @@ async function generate() {
 }
 
 function resetAll() {
+  hideStageProgress();
   state.sourceFile = null;
   state.uploadFile = null;
   state.uploadInfo = null;

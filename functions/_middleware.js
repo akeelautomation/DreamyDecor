@@ -3,7 +3,13 @@ function baseCsp({ allowPayPal }) {
   const connectSrc = ["'self'"];
   const frameSrc = ["'self'"];
   const childSrc = ["'self'"];
-  const imgSrc = ["'self'", "data:", "blob:"];
+  const imgSrc = [
+    "'self'",
+    "data:",
+    "blob:",
+    "https://m.media-amazon.com",
+    "https://images-na.ssl-images-amazon.com",
+  ];
   const styleSrc = ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"];
   const fontSrc = ["'self'", "data:", "https://fonts.gstatic.com"];
 

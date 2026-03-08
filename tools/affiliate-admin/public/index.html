@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dreamy Decor Affiliate Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600..900&family=Space+Grotesk:wght@400..700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="appShell">
+      <section class="hero">
+        <div class="hero__eyebrow">Dreamy Decor</div>
+        <h1>Affiliate Product Publisher</h1>
+        <p>
+          Paste an Amazon affiliate link and one or more image URLs, choose where it belongs, and the app will
+          generate or update the affiliate page, rich pin metadata, and the card inside <code>picks.html</code>.
+        </p>
+      </section>
+
+      <section class="grid">
+        <form id="productForm" class="panel">
+          <div class="panel__head">
+            <h2>Inputs</h2>
+            <p>Only the Amazon affiliate URL and at least one image URL are required.</p>
+          </div>
+
+          <label class="field">
+            <span>Amazon affiliate URL</span>
+            <input id="affiliateUrl" name="affiliateUrl" type="url" required placeholder="https://amzn.to/..." />
+          </label>
+
+          <label class="field">
+            <span>Amazon image URLs</span>
+            <textarea id="imageUrls" name="imageUrls" rows="4" required
+              placeholder="One image URL per line&#10;https://m.media-amazon.com/...&#10;https://m.media-amazon.com/..."></textarea>
+            <small class="field__hint">Use one image link per line. The first image becomes the main card image.</small>
+          </label>
+
+          <label class="field">
+            <span>Section</span>
+            <select id="sectionId" name="sectionId"></select>
+          </label>
+
+          <label class="toggle">
+            <input id="studioEnabled" name="studioEnabled" type="checkbox" checked />
+            <span>Advertise "Transform Your Decor with our AI" on this product</span>
+          </label>
+
+          <details class="advanced">
+            <summary>Optional overrides</summary>
+            <label class="field">
+              <span>Short title</span>
+              <input id="shortTitle" name="shortTitle" type="text" placeholder="Leave blank to auto-generate" />
+            </label>
+            <label class="field">
+              <span>Card summary</span>
+              <textarea
+                id="cardCopy"
+                name="cardCopy"
+                rows="3"
+                placeholder="Optional custom text for the picks card"
+              ></textarea>
+            </label>
+            <label class="field">
+              <span>Page summary</span>
+              <textarea
+                id="pageSummary"
+                name="pageSummary"
+                rows="3"
+                placeholder="Optional custom subtitle for the product detail page"
+              ></textarea>
+            </label>
+            <label class="field">
+              <span>Image alt text</span>
+              <input id="altText" name="altText" type="text" placeholder="Optional custom alt text" />
+            </label>
+          </details>
+
+          <div class="actions">
+            <button type="submit" class="btn btn--ghost" data-action="analyze">Preview</button>
+            <button type="button" id="publishBtn" class="btn btn--primary">Publish to site</button>
+          </div>
+
+          <div id="status" class="status" aria-live="polite"></div>
+        </form>
+
+        <section class="panel panel--preview">
+          <div class="panel__head">
+            <h2>Preview</h2>
+            <p>Check the generated metadata before writing files.</p>
+          </div>
+
+          <div id="emptyState" class="emptyState">
+            Run a preview to see the generated title, metadata, and output paths.
+          </div>
+
+          <div id="preview" class="preview" hidden>
+            <div class="previewCard">
+              <img id="previewImage" alt="" />
+              <div>
+                <div id="previewTitle" class="previewCard__title"></div>
+                <div id="previewSection" class="previewCard__meta"></div>
+                <div id="previewAsin" class="previewCard__meta"></div>
+                <div id="previewPrice" class="previewCard__meta"></div>
+              </div>
+            </div>
+
+            <div class="metaGrid">
+              <div class="metaBox">
+                <div class="metaBox__label">Page file</div>
+                <code id="previewFile"></code>
+              </div>
+              <div class="metaBox">
+                <div class="metaBox__label">Product URL</div>
+                <code id="previewUrl"></code>
+              </div>
+              <div class="metaBox">
+                <div class="metaBox__label">Image count</div>
+                <p id="previewImageCount"></p>
+              </div>
+              <div class="metaBox">
+                <div class="metaBox__label">Meta description</div>
+                <p id="previewMetaDescription"></p>
+              </div>
+              <div class="metaBox">
+                <div class="metaBox__label">Open Graph title</div>
+                <p id="previewOgTitle"></p>
+              </div>
+              <div class="metaBox metaBox--full">
+                <div class="metaBox__label">Product bullets</div>
+                <ul id="previewBullets" class="bulletList"></ul>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>

@@ -439,9 +439,40 @@ body{
   width:100%;
   height:auto;
   display:block;
-  aspect-ratio:1 / 1;
-  object-fit:cover;
+  aspect-ratio:auto;
+  object-fit:contain;
   background:rgba(20,18,26,.06);
+}
+.pickDetail__thumbs{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(84px, 1fr));
+  gap:10px;
+  padding:12px;
+  border-top:1px solid rgba(20,18,26,.10);
+}
+.pickDetail__thumb{
+  appearance:none;
+  border:1px solid rgba(20,18,26,.12);
+  border-radius:16px;
+  background:rgba(255,255,255,.82);
+  padding:6px;
+  cursor:pointer;
+  transition:border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+.pickDetail__thumb:hover,
+.pickDetail__thumb.is-active{
+  border-color:rgba(255,90,61,.56);
+  box-shadow:0 10px 24px rgba(20,18,26,.10);
+  transform:translateY(-1px);
+}
+.pickDetail__thumb img{
+  width:100%;
+  height:auto;
+  display:block;
+  aspect-ratio:1 / 1;
+  object-fit:contain;
+  border-radius:12px;
+  background:rgba(20,18,26,.05);
 }
 .pickDetail__panel{
   border-radius:calc(var(--r) + 10px);

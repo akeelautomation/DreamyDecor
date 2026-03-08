@@ -75,3 +75,34 @@ cmd /c npx wrangler pages dev . --port 8788
 ```
 
 Local env vars: create a `.dev.vars` file in the repo root (ignored by git) for secrets like `PAYMENT_JWT_SECRET`, `KIE_API_KEY`, and PayPal credentials.
+
+## Affiliate Admin App
+
+For affiliate product publishing, run:
+
+```bash
+npm run affiliate:app
+```
+
+Then open `http://localhost:4311/`.
+
+What it automates:
+- Resolves an Amazon affiliate shortlink to the product page.
+- Pulls the Amazon title, brand, ASIN, bullets, and price when available.
+- Generates or updates the matching `pick-*.html` detail page with Pinterest-friendly `og:*`, `product:*`, and `schema.org/Product` metadata.
+- Inserts or replaces the product card inside `picks.html`.
+- Lets you enable or disable the AI Studio promotion per product.
+
+Inputs:
+- Amazon affiliate URL
+- One or more Amazon image URLs
+- Section selection
+- Optional overrides for title, summaries, and alt text
+
+Image input notes:
+- Add one image URL per line in the admin app.
+- The first image is used for the product card and primary social preview image.
+- All provided images are included in the product page gallery and `schema.org/Product` image array.
+
+Requirement:
+- Node.js 18+ so the built-in `fetch` API is available.

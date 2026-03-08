@@ -233,7 +233,77 @@ function deriveStudioCopy(shortTitle) {
   return "Upload your space and preview how this piece fits your layout before you buy.";
 }
 
+function normalizeMoneyValue(value) {
+  const match = String(value ?? "").match(/([0-9][0-9,]*)(?:\.([0-9]{1,2}))?/);
+  if (!match) {
+    return "";
+  }
+
+  const dollars = match[1].replace(/,/g, "");
+  const cents = (match[2] || "00").padEnd(2, "0").slice(0, 2);
+  return `${dollars}.${cents}`;
+}
+
 function extractMoney(html) {
+  const scopedAnchors = [
+    'id="corePriceDisplay_desktop_feature_div"',
+    'id="corePrice_feature_div"',
+    'id="apex_desktop"',
+    'id="desktop_buybox"',
+    'id="corePrice_mobile_feature_div"',
+  ];
+
+  const scopedPatterns = [
+    /class="[^"]*\b(?:priceToPay|apex-price-to-pay-value|apex-pricetopay-value)\b[^"]*"[\s\S]*?<span class="a-offscreen">\s*\$?\s*([0-9][0-9,]*(?:\.[0-9]{1,2})?)/i,
+    /class="[^"]*\b(?:priceToPay|apex-price-to-pay-value|apex-pricetopay-value)\b[^"]*"[\s\S]*?<span class="a-price-whole">([0-9][0-9,]*)<span class="a-price-decimal">\.<\/span><\/span>\s*<span class="a-price-fraction">([0-9]{2})/i,
+    /<span id="apex-pricetopay-accessibility-label"[^>]*>\s*\$?\s*([0-9][0-9,]*(?:\.[0-9]{1,2})?)/i,
+    /<span class="a-offscreen">\s*\$?\s*([0-9][0-9,]*(?:\.[0-9]{1,2})?)/i,
+  ];
+
+  for (const anchor of scopedAnchors) {
+    const index = html.indexOf(anchor);
+    if (index < 0) {
+      continue;
+    }
+
+    const slice = html.slice(index, index + 20000);
+    for (const pattern of scopedPatterns) {
+      const match = slice.match(pattern);
+      if (!match) {
+        continue;
+      }
+
+      const value = match[2] ? `${match[1]}.${match[2]}` : match[1];
+      const normalized = normalizeMoneyValue(value);
+      if (normalized) {
+        return normalized;
+      }
+    }
+  }
+
+  const fallbackPatterns = [
+    /class="[^"]*\b(?:priceToPay|apex-price-to-pay-value|apex-pricetopay-value)\b[^"]*"[\s\S]*?<span class="a-offscreen">\s*\$?\s*([0-9][0-9,]*(?:\.[0-9]{1,2})?)/i,
+    /class="[^"]*\b(?:priceToPay|apex-price-to-pay-value|apex-pricetopay-value)\b[^"]*"[\s\S]*?<span class="a-price-whole">([0-9][0-9,]*)<span class="a-price-decimal">\.<\/span><\/span>\s*<span class="a-price-fraction">([0-9]{2})/i,
+    /<span id="apex-pricetopay-accessibility-label"[^>]*>\s*\$?\s*([0-9][0-9,]*(?:\.[0-9]{1,2})?)/i,
+    /id="priceblock_(?:our|deal|sale|pospromoprice)"[^>]*>\s*\$?\s*([0-9][0-9,]*(?:\.[0-9]{1,2})?)/i,
+    /"priceAmount"\s*:\s*"?([0-9][0-9,]*(?:\.[0-9]{1,2})?)"?/i,
+    /"displayPrice"\s*:\s*"\$?\s*([0-9][0-9,]*(?:\.[0-9]{1,2})?)"/i,
+    /"buyingPrice"\s*:\s*"\$?\s*([0-9][0-9,]*(?:\.[0-9]{1,2})?)"/i,
+  ];
+
+  for (const pattern of fallbackPatterns) {
+    const match = html.match(pattern);
+    if (!match) {
+      continue;
+    }
+
+    const value = match[2] ? `${match[1]}.${match[2]}` : match[1];
+    const normalized = normalizeMoneyValue(value);
+    if (normalized) {
+      return normalized;
+    }
+  }
+
   return "";
 }
 
@@ -859,6 +929,11 @@ function createServer() {
 
       if (req.method === "POST" && requestUrl.pathname === "/api/publish") {
         const analysis = await analyzeAffiliateInput(await readRequestBody(req));
+        if (!analysis.price) {
+          throw new Error(
+            "Could not extract a live Amazon price. Pinterest product tags need price metadata, so publishing was blocked.",
+          );
+        }
         const pageFile = await writeProductFiles(analysis);
         json(res, 200, {
           ok: true,

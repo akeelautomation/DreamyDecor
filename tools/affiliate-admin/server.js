@@ -721,7 +721,6 @@ ${renderOgImageTags(data)}
 ${gallery.media}
           <div class="pickDetail__panel">
             <div class="pickDetail__priceRow">
-              <div class="pickDetail__price">${escapeHtml(data.priceLabel)}</div>
               <div class="pickDetail__meta">ASIN ${escapeHtml(data.asin)}</div>
             </div>
 

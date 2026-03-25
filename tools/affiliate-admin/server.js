@@ -7,7 +7,6 @@ const ROOT_DIR = path.resolve(__dirname, "..", "..");
 const PUBLIC_DIR = path.join(__dirname, "public");
 const PICKS_PATH = path.join(ROOT_DIR, "picks.html");
 const SITE_URL = "https://dreamydecor.ai";
-const STUDIO_URL = "https://dreamydecor.pages.dev/studio";
 const PORT = Number(process.env.PORT || 4311);
 
 const AMAZON_HEADERS = {
@@ -229,10 +228,6 @@ function deriveMetaDescription(shortTitle, cardCopy) {
   return truncate(`Affiliate pick: ${shortTitle}. ${cardCopy}`, 158);
 }
 
-function deriveStudioCopy(shortTitle) {
-  return "Upload your space and preview how this piece fits your layout before you buy.";
-}
-
 function normalizeMoneyValue(value) {
   const match = String(value ?? "").match(/([0-9][0-9,]*)(?:\.([0-9]{1,2}))?/);
   if (!match) {
@@ -442,14 +437,12 @@ function createAnalysis(input, amazonData, sections) {
   const imageSize = extractImageSize(primaryImageUrl);
   const ogTitle = `${shortTitle} | Dreamy Decor`;
   const metaDescription = deriveMetaDescription(shortTitle, cardCopy);
-  const studioEnabled = Boolean(input.studioEnabled);
   const productUrl = `${SITE_URL}/${pageFile}`;
 
   return {
     affiliateUrl: input.affiliateUrl,
     imageUrl: primaryImageUrl,
     imageUrls,
-    studioEnabled,
     sectionId,
     sectionLabel: sections.find((section) => section.id === sectionId)?.label || "Decor Picks",
     asin: amazonData.asin,
@@ -469,7 +462,6 @@ function createAnalysis(input, amazonData, sections) {
     ogDescription: pageSummary,
     twitterDescription: pageSummary,
     altText: input.altText?.trim() || `${shortTitle} product photo`,
-    studioCopy: deriveStudioCopy(shortTitle),
     imageWidth: imageSize.width,
     imageHeight: imageSize.height,
   };
@@ -487,43 +479,6 @@ async function findExistingPickFile({ asin, affiliateUrl, pageFile }) {
   }
 
   return pageFile;
-}
-
-function renderStudioBand(studioEnabled, studioCopy) {
-  if (!studioEnabled) {
-    return "";
-  }
-
-  return `
-            <section class="ctaBand" aria-label="Transform your decor with AI">
-              <div>
-                <div class="ctaBand__k">AI Studio</div>
-                <div class="ctaBand__t">Transform Your Decor with our AI</div>
-                <div class="ctaBand__s">${escapeHtml(studioCopy)}</div>
-              </div>
-              <div class="ctaBand__a">
-                <a
-                  class="btn btn--primary"
-                  href="${escapeHtml(STUDIO_URL)}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Open AI Studio
-                </a>
-              </div>
-            </section>`;
-}
-
-function renderStudioButton(studioEnabled) {
-  if (!studioEnabled) {
-    return "";
-  }
-
-  return `
-                <a class="btn" href="${escapeHtml(STUDIO_URL)}" target="_blank"
-                  rel="noopener noreferrer">
-                  Transform with AI Studio
-                </a>`;
 }
 
 function renderOgImageTags(data) {
@@ -696,7 +651,6 @@ ${renderOgImageTags(data)}
         <span class="brand__word">DREAMY DECOR</span>
       </a>
       <nav class="nav" aria-label="Primary">
-        <a class="nav__link" href="studio.html">AI Studio</a>
         <a class="nav__link nav__link--active" href="picks.html">Decor Picks</a>
         <a class="nav__link" href="blog.html">Blog</a>
       </nav>
@@ -726,7 +680,7 @@ ${gallery.media}
 
             <ul class="pickDetail__bullets">
 ${data.bullets.map((bullet) => `              <li>${escapeHtml(toSentenceCase(bullet))}</li>`).join("\n")}
-            </ul>${renderStudioBand(data.studioEnabled, data.studioCopy)}
+            </ul>
 
             <div class="actions actions--spread">
               <a class="btn" href="picks.html#${escapeHtml(data.sectionId)}">Back to ${escapeHtml(data.sectionLabel)} picks</a>
@@ -748,7 +702,7 @@ ${data.bullets.map((bullet) => `              <li>${escapeHtml(toSentenceCase(bu
       <section class="footer">
         <div class="footer__left">
           <div class="footBrand">DREAMY DECOR</div>
-          <div class="footNote">Curated picks, practical guides, and an AI studio.</div>
+          <div class="footNote">Curated picks and practical guides for finishing a room.</div>
         </div>
         <div class="footer__right">
           <a class="nav__link" href="privacy.html">Privacy</a>
@@ -777,7 +731,7 @@ function renderProductCard(data, pageFile) {
                 ${escapeHtml(data.cardCopy)}
               </p>
               <div class="productCard__a">
-                <a class="btn" href="${escapeHtml(pageFile)}">Details</a>${renderStudioButton(data.studioEnabled)}
+                <a class="btn" href="${escapeHtml(pageFile)}">Details</a>
                 <a class="btn btn--primary" href="${escapeHtml(data.affiliateUrl)}" target="_blank"
                   rel="noopener noreferrer nofollow sponsored">
                   ${escapeHtml(data.priceLabel)}
@@ -960,7 +914,6 @@ if (require.main === module) {
 module.exports = {
   PORT,
   SITE_URL,
-  STUDIO_URL,
   analyzeAffiliateInput,
   createServer,
   getSections,

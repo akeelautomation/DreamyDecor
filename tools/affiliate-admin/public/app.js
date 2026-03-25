@@ -53,7 +53,6 @@ function formPayload() {
     cardCopy: data.get("cardCopy")?.trim(),
     pageSummary: data.get("pageSummary")?.trim(),
     altText: data.get("altText")?.trim(),
-    studioEnabled: data.get("studioEnabled") === "on",
   };
 }
 

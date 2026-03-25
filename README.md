@@ -91,7 +91,7 @@ What it automates:
 - Pulls the Amazon title, brand, ASIN, bullets, and price when available.
 - Generates or updates the matching `pick-*.html` detail page with Pinterest-friendly `og:*`, `product:*`, and `schema.org/Product` metadata.
 - Inserts or replaces the product card inside `picks.html`.
-- Lets you enable or disable the AI Studio promotion per product.
+- Generates clean product pages and picks cards without extra promotional blocks.
 
 Inputs:
 - Amazon affiliate URL

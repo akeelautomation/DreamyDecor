@@ -1153,8 +1153,15 @@ body{
   display:flex;
   justify-content:space-between;
   gap:18px;
-  align-items:flex-end;
+  align-items:flex-start;
   color:rgba(20,18,26,.64);
+}
+.footer__left{max-width:48ch}
+.footer__right{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  justify-content:flex-end;
 }
 .footBrand{font-family:var(--display); font-weight:900; letter-spacing:.08em}
 .footNote{font-size:12px; margin-top:6px}
@@ -1214,4 +1221,6 @@ body{
   .how{padding:16px}
   .doc{padding:8px 16px 26px}
   .prose h1{font-size:36px}
+  .footer{flex-direction:column; align-items:flex-start}
+  .footer__right{justify-content:flex-start}
 }

@@ -117,13 +117,13 @@ async function analyze() {
 }
 
 async function publish() {
-  setStatus("Writing product page and updating picks.html...");
-  const { analysis, pagePath, picksPath } = await requestJson("/api/publish", {
+  setStatus("Writing product page and updating the matching picks page...");
+  const { analysis, pagePath, sectionPagePath } = await requestJson("/api/publish", {
     method: "POST",
     body: JSON.stringify(formPayload()),
   });
   renderAnalysis(analysis);
-  setStatus(`Published ${analysis.pageFile}. Updated ${picksPath} and ${pagePath}.`, "status--ok");
+  setStatus(`Published ${analysis.pageFile}. Updated ${sectionPagePath} and ${pagePath}.`, "status--ok");
 }
 
 els.form.addEventListener("submit", async (event) => {

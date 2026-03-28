@@ -90,7 +90,7 @@ What it automates:
 - Resolves an Amazon affiliate shortlink to the product page.
 - Pulls the Amazon title, brand, ASIN, bullets, and price when available.
 - Generates or updates the matching `pick-*.html` detail page with Pinterest-friendly `og:*`, `product:*`, and `schema.org/Product` metadata.
-- Inserts or replaces the product card inside `picks.html`.
+- Inserts or replaces the product card inside the matching paginated picks page such as `picks-living.html` or `picks-bedroom.html`.
 - Generates clean product pages and picks cards without extra promotional blocks.
 
 Inputs:

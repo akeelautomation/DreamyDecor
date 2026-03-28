@@ -5,9 +5,15 @@ const { URL } = require("url");
 
 const ROOT_DIR = path.resolve(__dirname, "..", "..");
 const PUBLIC_DIR = path.join(__dirname, "public");
-const PICKS_PATH = path.join(ROOT_DIR, "picks.html");
+const PICKS_HUB_PATH = path.join(ROOT_DIR, "picks.html");
 const SITE_URL = "https://dreamydecor.ai";
 const PORT = Number(process.env.PORT || 4311);
+const SECTION_PAGE_CONFIG = [
+  { id: "living", pageFile: "picks-living.html" },
+  { id: "bedroom", pageFile: "picks-bedroom.html" },
+  { id: "outdoor", pageFile: "picks-outdoor.html" },
+  { id: "small", pageFile: "picks-small-wins.html" },
+];
 
 const AMAZON_HEADERS = {
   "user-agent":
@@ -370,13 +376,27 @@ function extractAmazonPathInfo(urlString) {
 }
 
 async function getSections() {
-  const html = await fs.readFile(PICKS_PATH, "utf8");
-  return Array.from(html.matchAll(/<section class="pickSection" id="([^"]+)"[\s\S]*?<h2 class="sectionTitle">([^<]+)<\/h2>/g)).map(
-    (match) => ({
-      id: match[1],
-      label: cleanText(match[2]),
-    }),
-  );
+  const sections = [];
+
+  for (const config of SECTION_PAGE_CONFIG) {
+    const html = await fs.readFile(path.join(ROOT_DIR, config.pageFile), "utf8");
+    const match = html.match(
+      new RegExp(`<section class="pickSection" id="${escapeRegExp(config.id)}"[\\s\\S]*?<h2 class="sectionTitle">([^<]+)</h2>`, "i"),
+    );
+
+    if (!match) {
+      continue;
+    }
+
+    sections.push({
+      id: config.id,
+      label: cleanText(match[1]),
+      pageFile: config.pageFile,
+      sectionUrl: `${config.pageFile}#${config.id}`,
+    });
+  }
+
+  return sections;
 }
 
 async function resolveAffiliateUrl(affiliateUrl) {
@@ -445,6 +465,8 @@ function createAnalysis(input, amazonData, sections) {
     imageUrls,
     sectionId,
     sectionLabel: sections.find((section) => section.id === sectionId)?.label || "Decor Picks",
+    sectionPageFile: sections.find((section) => section.id === sectionId)?.pageFile || "picks.html",
+    sectionUrl: sections.find((section) => section.id === sectionId)?.sectionUrl || `picks.html#${sectionId}`,
     asin: amazonData.asin,
     brand: amazonData.brand,
     fullTitle: amazonData.fullTitle,
@@ -683,7 +705,7 @@ ${data.bullets.map((bullet) => `              <li>${escapeHtml(toSentenceCase(bu
             </ul>
 
             <div class="actions actions--spread">
-              <a class="btn" href="picks.html#${escapeHtml(data.sectionId)}">Back to ${escapeHtml(data.sectionLabel)} picks</a>
+              <a class="btn" href="${escapeHtml(data.sectionUrl)}">Back to ${escapeHtml(data.sectionLabel)} picks</a>
               <a
                 class="btn btn--primary"
                 href="${escapeHtml(data.affiliateUrl)}"
@@ -741,22 +763,22 @@ function renderProductCard(data, pageFile) {
           </article>`;
 }
 
-function replaceOrInsertCard(picksHtml, sectionId, cardHtml, pageFile, affiliateUrl) {
-  const withoutExistingCard = picksHtml.replace(/<article class="productCard">[\s\S]*?<\/article>\s*/gi, (block) => {
+function replaceOrInsertCard(listHtml, sectionId, cardHtml, pageFile, affiliateUrl, pageLabel) {
+  const withoutExistingCard = listHtml.replace(/<article class="productCard">[\s\S]*?<\/article>\s*/gi, (block) => {
     return block.includes(`href="${pageFile}"`) || block.includes(`href="${affiliateUrl}"`) ? "" : block;
   });
   const sectionMarker = `<section class="pickSection" id="${sectionId}"`;
   const sectionIndex = withoutExistingCard.indexOf(sectionMarker);
 
   if (sectionIndex < 0) {
-    throw new Error(`Could not find section "${sectionId}" inside picks.html`);
+    throw new Error(`Could not find section "${sectionId}" inside ${pageLabel}`);
   }
 
   const gridMarker = '<div class="cardGrid">';
   const gridIndex = withoutExistingCard.indexOf(gridMarker, sectionIndex);
 
   if (gridIndex < 0) {
-    throw new Error(`Could not find card grid for section "${sectionId}" inside picks.html`);
+    throw new Error(`Could not find card grid for section "${sectionId}" inside ${pageLabel}`);
   }
 
   const insertIndex = gridIndex + gridMarker.length;
@@ -767,12 +789,20 @@ async function writeProductFiles(data) {
   const pageHtml = renderProductPage(data);
   await fs.writeFile(path.join(ROOT_DIR, data.pageFile), pageHtml, "utf8");
 
-  const picksHtml = await fs.readFile(PICKS_PATH, "utf8");
+  const sectionPagePath = path.join(ROOT_DIR, data.sectionPageFile);
+  const picksHtml = await fs.readFile(sectionPagePath, "utf8");
   const cardHtml = renderProductCard(data, data.pageFile);
-  const updatedPicksHtml = replaceOrInsertCard(picksHtml, data.sectionId, cardHtml, data.pageFile, data.affiliateUrl);
-  await fs.writeFile(PICKS_PATH, updatedPicksHtml, "utf8");
+  const updatedPicksHtml = replaceOrInsertCard(
+    picksHtml,
+    data.sectionId,
+    cardHtml,
+    data.pageFile,
+    data.affiliateUrl,
+    data.sectionPageFile,
+  );
+  await fs.writeFile(sectionPagePath, updatedPicksHtml, "utf8");
 
-  return data.pageFile;
+  return { pageFile: data.pageFile, sectionPagePath };
 }
 
 async function analyzeAffiliateInput(input) {
@@ -887,13 +917,14 @@ function createServer() {
             "Could not extract a live Amazon price. Pinterest product tags need price metadata, so publishing was blocked.",
           );
         }
-        const pageFile = await writeProductFiles(analysis);
+        const publishResult = await writeProductFiles(analysis);
         json(res, 200, {
           ok: true,
-          pageFile,
-          pagePath: path.join(ROOT_DIR, pageFile),
-          picksPath: PICKS_PATH,
-          analysis: { ...analysis, pageFile, productUrl: `${SITE_URL}/${pageFile}` },
+          pageFile: publishResult.pageFile,
+          pagePath: path.join(ROOT_DIR, publishResult.pageFile),
+          picksHubPath: PICKS_HUB_PATH,
+          sectionPagePath: publishResult.sectionPagePath,
+          analysis: { ...analysis, pageFile: publishResult.pageFile, productUrl: `${SITE_URL}/${publishResult.pageFile}` },
         });
         return;
       }

@@ -2,6 +2,7 @@
   "name": "dreamy-decor-ai",
   "private": true,
   "scripts": {
-    "affiliate:app": "node tools/affiliate-admin/server.js"
+    "affiliate:app": "node tools/affiliate-admin/server.js",
+    "products:index": "node tools/generate-product-index.js"
   }
 }

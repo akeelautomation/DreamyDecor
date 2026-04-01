@@ -59,6 +59,8 @@ body{
   display:flex;
   align-items:center;
   justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
   padding:18px 22px;
   max-width:1240px;
   margin:0 auto;
@@ -93,6 +95,13 @@ body{
   font-size:15px;
 }
 
+.top__aside{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-left:auto;
+}
+
 .nav{display:flex; gap:14px}
 .nav__link{
   color:var(--muted);
@@ -108,6 +117,58 @@ body{
   color:rgba(20,18,26,.88);
   background:rgba(255,255,255,.62);
   border-color:rgba(20,18,26,.12);
+}
+
+.siteSearch{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:min(100%, 420px);
+  padding:6px;
+  border-radius:999px;
+  border:1px solid rgba(20,18,26,.10);
+  background:rgba(255,255,255,.72);
+  box-shadow:0 14px 34px rgba(20,18,26,.08);
+  backdrop-filter: blur(10px);
+}
+.siteSearch__input{
+  width:min(100%, 260px);
+  min-width:0;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:var(--ink);
+  font:inherit;
+  padding:8px 10px;
+}
+.siteSearch__input::placeholder{color:rgba(20,18,26,.48)}
+.siteSearch__btn{
+  border:0;
+  border-radius:999px;
+  background:rgba(20,18,26,.08);
+  color:rgba(20,18,26,.86);
+  font:inherit;
+  font-size:13px;
+  font-weight:700;
+  padding:10px 14px;
+  cursor:pointer;
+  transition:background .12s ease, transform .12s ease;
+}
+.siteSearch__btn:hover{
+  background:rgba(20,18,26,.12);
+  transform:translateY(-1px);
+}
+
+.srOnly{
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip:rect(0, 0, 0, 0);
+  white-space:nowrap;
+  border:0;
 }
 
 .shell{
@@ -343,6 +404,11 @@ body{
   transition:transform .12s ease, border-color .12s ease, background .12s ease;
 }
 .chip:hover{transform:translateY(-1px); border-color:rgba(20,18,26,.18); background:rgba(255,255,255,.72)}
+.chip--button{
+  appearance:none;
+  font:inherit;
+  cursor:pointer;
+}
 
 .pickSection{margin-top:16px}
 .pageNav{
@@ -533,6 +599,60 @@ body{
 }
 .productCard__c{margin:10px 0 0; color:rgba(20,18,26,.70); font-size:13px; line-height:1.45}
 .productCard__a{margin-top:12px; display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap}
+
+.searchPanel{
+  margin-top:16px;
+}
+.searchPanel__row{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+.searchPanel__input{
+  flex:1 1 auto;
+  min-width:0;
+  border:1px solid rgba(20,18,26,.12);
+  border-radius:20px;
+  background:rgba(255,255,255,.84);
+  box-shadow:0 14px 34px rgba(20,18,26,.08);
+  color:var(--ink);
+  font:inherit;
+  padding:14px 16px;
+  outline:0;
+}
+.searchPanel__input:focus,
+.siteSearch__input:focus{
+  box-shadow:0 0 0 3px rgba(31,184,167,.18);
+}
+.searchPanel__input::placeholder{color:rgba(20,18,26,.48)}
+.searchPanel__btn{white-space:nowrap}
+.searchSummary{
+  margin:16px 0 12px;
+  color:rgba(20,18,26,.72);
+  font-size:14px;
+}
+.searchEmpty{
+  grid-column:1 / -1;
+  border-radius:calc(var(--r) + 8px);
+  border:1px solid rgba(20,18,26,.10);
+  background:
+    radial-gradient(720px 240px at 16% 0%, rgba(255,90,61,.10), transparent 60%),
+    radial-gradient(720px 240px at 86% 0%, rgba(31,184,167,.08), transparent 60%),
+    rgba(255,255,255,.72);
+  box-shadow:0 18px 52px rgba(20,18,26,.10);
+  padding:22px;
+}
+.searchEmpty__title{
+  margin:0;
+  font-family:var(--display);
+  font-size:28px;
+  letter-spacing:-.01em;
+}
+.searchEmpty__copy{
+  margin:10px 0 0;
+  color:rgba(20,18,26,.72);
+  line-height:1.55;
+}
 
 .finePrint{
   margin-top:10px;
@@ -1319,6 +1439,17 @@ body{
 }
 
 @media (max-width: 980px){
+  .top{align-items:flex-start}
+  .top__aside{
+    width:100%;
+    flex-wrap:wrap;
+    margin-left:0;
+  }
+  .siteSearch{
+    min-width:0;
+    width:100%;
+  }
+  .siteSearch__input{width:100%}
   .stage{position:relative; top:auto}
   .tiles{grid-template-columns:1fr}
   .how__grid{grid-template-columns:1fr}
@@ -1332,6 +1463,9 @@ body{
 
 @media (max-width: 520px){
   .top{padding:16px 16px}
+  .top__aside{gap:10px}
+  .nav{width:100%; flex-wrap:wrap}
+  .searchPanel__row{flex-direction:column; align-items:stretch}
   .shell{padding:8px 16px 26px}
   .grid2{grid-template-columns:1fr}
   .styleGrid{grid-template-columns:1fr}

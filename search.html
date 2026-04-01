@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <meta name="p:domain_verify" content="9c6037d438a25ef0f7bd7f38b3ce4d23" />
+    <meta
+      name="description"
+      content="Search Dreamy Decor decor picks by room, product type, or keyword."
+    />
+    <title>DREAMY DECOR | Search</title>
+
+    <link rel="icon" href="static/favicon.svg?v=20260214" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600..900&family=Space+Grotesk:wght@400..700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="static/style.css?v=20260401" />
+  </head>
+  <body>
+    <div class="bg" aria-hidden="true"></div>
+
+    <header class="top">
+      <a class="brand" href="index.html" aria-label="DREAMY DECOR home">
+        <span class="brand__mark" aria-hidden="true">DD</span>
+        <span class="brand__word">DREAMY DECOR</span>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a class="nav__link" href="picks.html">Decor Picks</a>
+        <a class="nav__link" href="blog.html">Blog</a>
+      </nav>
+    </header>
+
+    <main class="shell">
+      <section class="page" data-search-page>
+        <div class="pageHead">
+          <div class="pageHead__kicker">Decor Picks</div>
+          <h1 class="pageHead__title">Find decor picks faster.</h1>
+          <p class="pageHead__sub">
+            Search by room, product type, or keyword.
+          </p>
+          <form class="searchPanel" action="search.html" method="get" role="search" data-search-form>
+            <label class="srOnly" for="productSearchInput">Search Dreamy Decor products</label>
+            <div class="searchPanel__row">
+              <input
+                id="productSearchInput"
+                class="searchPanel__input"
+                type="search"
+                name="q"
+                placeholder="Search chairs, mirrors, dressers, shelves, patio sets..."
+                autocomplete="off"
+                data-search-input
+              />
+              <button class="btn btn--primary searchPanel__btn" type="submit">Search</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="chips" aria-label="Popular product searches">
+          <button class="chip chip--button" type="button" data-search-chip="living room">Living Room</button>
+          <button class="chip chip--button" type="button" data-search-chip="bedroom">Bedroom</button>
+          <button class="chip chip--button" type="button" data-search-chip="outdoor">Outdoor</button>
+          <button class="chip chip--button" type="button" data-search-chip="small wins">Small Wins</button>
+          <button class="chip chip--button" type="button" data-search-chip="chair">Chair</button>
+          <button class="chip chip--button" type="button" data-search-chip="mirror">Mirror</button>
+          <button class="chip chip--button" type="button" data-search-chip="dresser">Dresser</button>
+          <button class="chip chip--button" type="button" data-search-chip="shelf">Shelf</button>
+        </div>
+
+        <p class="searchSummary" data-search-summary>Loading product results...</p>
+        <div class="cardGrid" data-search-results aria-live="polite" aria-busy="true"></div>
+      </section>
+
+      <section class="footer">
+        <div class="footer__left">
+          <div class="footBrand">DREAMY DECOR</div>
+          <div class="footNote">Blog-first decor ideas, practical room guides, and curated affiliate-backed picks.</div>
+        </div>
+        <div class="footer__right">
+          <a class="nav__link" href="about-us.html">About Us</a>
+          <a class="nav__link" href="contact-us.html">Contact Us</a>
+          <a class="nav__link" href="privacy.html">Privacy Policy</a>
+          <a class="nav__link" href="affiliate-disclosure.html">Affiliate Disclosure</a>
+        </div>
+      </section>
+    </main>
+
+    <script src="static/product-index.js?v=20260401"></script>
+    <script src="static/site-search.js?v=20260401" defer></script>
+  </body>
+</html>

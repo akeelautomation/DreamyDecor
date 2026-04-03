@@ -2,6 +2,7 @@ const http = require("http");
 const fs = require("fs/promises");
 const path = require("path");
 const { URL } = require("url");
+const { writeProductIndex } = require("../generate-product-index");
 
 const ROOT_DIR = path.resolve(__dirname, "..", "..");
 const PUBLIC_DIR = path.join(__dirname, "public");
@@ -802,7 +803,17 @@ async function writeProductFiles(data) {
   );
   await fs.writeFile(sectionPagePath, updatedPicksHtml, "utf8");
 
-  return { pageFile: data.pageFile, sectionPagePath };
+  let productIndexUpdated = true;
+  let productIndexError = null;
+
+  try {
+    writeProductIndex();
+  } catch (error) {
+    productIndexUpdated = false;
+    productIndexError = error.message || "Product index refresh failed.";
+  }
+
+  return { pageFile: data.pageFile, sectionPagePath, productIndexUpdated, productIndexError };
 }
 
 async function analyzeAffiliateInput(input) {
@@ -924,6 +935,8 @@ function createServer() {
           pagePath: path.join(ROOT_DIR, publishResult.pageFile),
           picksHubPath: PICKS_HUB_PATH,
           sectionPagePath: publishResult.sectionPagePath,
+          productIndexUpdated: publishResult.productIndexUpdated,
+          productIndexError: publishResult.productIndexError,
           analysis: { ...analysis, pageFile: publishResult.pageFile, productUrl: `${SITE_URL}/${publishResult.pageFile}` },
         });
         return;

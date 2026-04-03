@@ -10,6 +10,27 @@ const PICK_PAGES = [
   { file: "picks-small-wins.html", room: "Small Wins", roomPage: "picks-small-wins.html", order: 4 },
 ];
 
+function resolveLocalPagePath(url) {
+  return path.join(ROOT, String(url || "").split(/[?#]/, 1)[0]);
+}
+
+function getAddedAt(url, fallbackFile) {
+  const candidates = [resolveLocalPagePath(url), path.join(ROOT, fallbackFile)];
+
+  for (const candidate of candidates) {
+    try {
+      const stats = fs.statSync(candidate);
+      const preferredDate =
+        Number.isFinite(stats.birthtimeMs) && stats.birthtimeMs > 0 ? stats.birthtime : stats.mtime;
+      return preferredDate.toISOString();
+    } catch (error) {
+      // Try the next fallback path.
+    }
+  }
+
+  return null;
+}
+
 function decodeEntities(value) {
   return value
     .replace(/&amp;/g, "&")
@@ -72,6 +93,7 @@ function collectProducts() {
         description,
         url,
         image,
+        addedAt: getAddedAt(url, page.file),
         room: page.room,
         rooms: [page.room],
         roomPage: page.roomPage,
@@ -84,8 +106,20 @@ function collectProducts() {
   return Array.from(productsByUrl.values());
 }
 
-const products = collectProducts();
-const fileContents = `window.DREAMY_DECOR_PRODUCTS = ${JSON.stringify(products, null, 2)};\n`;
+function writeProductIndex() {
+  const products = collectProducts();
+  const fileContents = `window.DREAMY_DECOR_PRODUCTS = ${JSON.stringify(products, null, 2)};\n`;
 
-fs.writeFileSync(OUTPUT_FILE, fileContents, "utf8");
-console.log(`Wrote ${products.length} products to ${path.relative(ROOT, OUTPUT_FILE)}`);
+  fs.writeFileSync(OUTPUT_FILE, fileContents, "utf8");
+  return { outputFile: OUTPUT_FILE, count: products.length };
+}
+
+if (require.main === module) {
+  const result = writeProductIndex();
+  console.log(`Wrote ${result.count} products to ${path.relative(ROOT, result.outputFile)}`);
+}
+
+module.exports = {
+  collectProducts,
+  writeProductIndex,
+};

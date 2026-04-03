@@ -272,26 +272,40 @@
     const results = root.querySelector("[data-latest-results]");
     const limit = Number.parseInt(root.getAttribute("data-max-products") || `${DEFAULT_LIMIT}`, 10) || DEFAULT_LIMIT;
     const fallbackProducts = readFallbackProducts();
+    const hasServerRenderedResults = results && results.children.length > 0;
 
     if (!summary || !results) {
       return;
     }
 
     results.setAttribute("aria-busy", "true");
-    summary.textContent = "Loading the latest decor picks from the live room pages...";
+    if (!hasServerRenderedResults) {
+      summary.textContent = "Loading the latest decor picks from the live room pages...";
+    }
 
     let products = [];
+    let usedFallback = false;
 
     try {
       const roomProducts = await loadProductsFromRoomPages(fallbackProducts);
       products = sortLatest(await enrichWithLiveTimestamps(roomProducts, fallbackProducts));
     } catch (error) {
+      usedFallback = true;
       products = sortLatest(Array.from(fallbackProducts.values()));
     }
 
     const latestProducts = products.slice(0, limit);
 
+    if (usedFallback && hasServerRenderedResults) {
+      results.setAttribute("aria-busy", "false");
+      return;
+    }
+
     if (!products.length) {
+      if (hasServerRenderedResults) {
+        results.setAttribute("aria-busy", "false");
+        return;
+      }
       summary.textContent = "Latest products are unavailable right now.";
       results.innerHTML =
         '<article class="searchEmpty"><h2 class="searchEmpty__title">Latest picks unavailable</h2><p class="searchEmpty__copy">No live room-page products or fallback product index could be loaded.</p></article>';

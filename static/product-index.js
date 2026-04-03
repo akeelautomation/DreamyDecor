@@ -1,5 +1,21 @@
 window.DREAMY_DECOR_PRODUCTS = [
   {
+    "title": "PADMA HOUSE Solid Wood Coffee Table with Shelf",
+    "description": "Solid Construction: Crafted of solid wood frame & legs, with a Cherry Brown Tone Birch Wood Veneer Top, poplar wood and MDF. The whole coffee table was sprayed...",
+    "url": "pick-padma-house-solid-wood-coffee-table-with-shelf.html",
+    "image": "https://m.media-amazon.com/images/I/91vAI8ealUL._AC_SX679_.jpg",
+    "addedAt": "2026-04-03T17:21:24.079Z",
+    "room": "Living Room",
+    "rooms": [
+      "Living Room"
+    ],
+    "roomPage": "picks-living.html",
+    "roomPages": [
+      "picks-living.html"
+    ],
+    "order": 1
+  },
+  {
     "title": "Crosley Furniture Liam Medium Vinyl Record Storage TV Stand and Entertainment Center",
     "description": "With its classic walnut finish and tapered legs equipped with adjustable levelers, this record storage media console captures the timeless appeal of mid-century...",
     "url": "pick-crosley-furniture-liam-medium-vinyl-record-storage-tv-stand-and-entertainment-center.html",
@@ -658,6 +674,38 @@ window.DREAMY_DECOR_PRODUCTS = [
     "order": 1
   },
   {
+    "title": "YUSOKI Sherpa Throw Blanket-3D Stylish Design Super Soft Fuzzy Cozy Warm Blanket Thick Plush Fluffy Furry Blankets for Teen Girls Women Couch Bed Sofa Chair Men Boys Gift(Tan",
+    "description": "PACKAGE INCLUDED:1 piece 50\"*65\"blanket without pillows!",
+    "url": "pick-yusoki-sherpa-throw-blanket-3d-stylish-design-super-soft-fuzzy-cozy-warm-blanket-thick-plush-fluffy-furry-blankets-for-teen-girls-women-couch-bed-sofa-chair-men-boys-gift-tan.html",
+    "image": "https://m.media-amazon.com/images/I/818BRJgKL5L._AC_SY300_SX300_QL70_FMwebp_.jpg",
+    "addedAt": "2026-04-03T17:21:44.379Z",
+    "room": "Bedroom",
+    "rooms": [
+      "Bedroom"
+    ],
+    "roomPage": "picks-bedroom.html",
+    "roomPages": [
+      "picks-bedroom.html"
+    ],
+    "order": 2
+  },
+  {
+    "title": "GINAMUSE Chunky Knit Blanket Super Soft Cable Fluffy Microfiber Cozy Warm Winter Blankets for Couch Sofa Bed Twin Size 60\"X80\" Olive Green",
+    "description": "The luxurious feel of our cable pattern blanket, crafted from premium microfiber. This ultra-soft and plush throw offers exceptional warmth, ensuring you stay cozy...",
+    "url": "pick-ginamuse-chunky-knit-blanket-super-soft-cable-fluffy-microfiber-cozy-warm-winter-blankets-for-couch-sofa-bed-twin-size-60-x80-olive-green.html",
+    "image": "https://m.media-amazon.com/images/I/91d8qyRJUjL._AC_SL1500_.jpg",
+    "addedAt": "2026-04-03T17:14:42.461Z",
+    "room": "Bedroom",
+    "rooms": [
+      "Bedroom"
+    ],
+    "roomPage": "picks-bedroom.html",
+    "roomPages": [
+      "picks-bedroom.html"
+    ],
+    "order": 2
+  },
+  {
     "title": "Achart Macrame Wall Hanging Large- Boho Wall Decor- large wall art- Wall Decor Living Room- Macrame Tapestry Boho Decor for Bedroom (Triangle)",
     "description": "Large Size: Approximately 43\" W x 32\" H.",
     "url": "pick-achart-macrame-wall-hanging-large-boho-wall-decor-large-wall-art-wall-decor-living-room-macrame-tapestry-boho-decor-for-bedroom-triangle.html",
@@ -1168,6 +1216,118 @@ window.DREAMY_DECOR_PRODUCTS = [
       "picks-outdoor.html"
     ],
     "order": 3
+  },
+  {
+    "title": "Chouhan Rugs 2 Set of Indian Kilim Cushion Cover 18X18 Pillows Boho Ethnic Shams Jute Pillow Cases Rug Boho Shams (Pattern 24)",
+    "description": "A practical chouhan rugs 2 set of indian kilim cushion cover 18x18 pillows boho ethnic shams jute pillow cases rug boho shams (pattern 24) pick for updated spaces and cleaner styling decisions.",
+    "url": "pick-chouhan-rugs-2-set-of-indian-kilim-cushion-cover-18x18-pillows-boho-ethnic-shams-jute-pillow-cases-rug-boho-shams-pattern-24.html",
+    "image": "https://m.media-amazon.com/images/I/514fEMfp-aL._AC_SX679_.jpg",
+    "addedAt": "2026-04-03T17:22:05.725Z",
+    "room": "Small Wins",
+    "rooms": [
+      "Small Wins"
+    ],
+    "roomPage": "picks-small-wins.html",
+    "roomPages": [
+      "picks-small-wins.html"
+    ],
+    "order": 4
+  },
+  {
+    "title": "OPPODREAM Vintage Green Area Rugs 8x10",
+    "description": "Use 13 oz/yd2 faux wool as rug's surface, creat the best balance between softness and thickness.----Most products only have 11 oz/yd2 surface or less",
+    "url": "pick-oppodream-vintage-green-area-rugs-8x10.html",
+    "image": "https://m.media-amazon.com/images/I/91CW1qYvshL._AC_SX679_.jpg",
+    "addedAt": "2026-04-03T17:19:46.063Z",
+    "room": "Small Wins",
+    "rooms": [
+      "Small Wins"
+    ],
+    "roomPage": "picks-small-wins.html",
+    "roomPages": [
+      "picks-small-wins.html"
+    ],
+    "order": 4
+  },
+  {
+    "title": "keysays Cordless Table Lamp",
+    "description": "This cordless table lamp offers 3 color temperatures (Warm / Neutral / Cool) with smooth stepless dimming (10%-100%) to match your needs. The memory function...",
+    "url": "pick-keysays-cordless-table-lamp.html",
+    "image": "https://m.media-amazon.com/images/I/51Z0uN8wV1L._AC_SX679_.jpg",
+    "addedAt": "2026-04-03T17:19:23.395Z",
+    "room": "Small Wins",
+    "rooms": [
+      "Small Wins"
+    ],
+    "roomPage": "picks-small-wins.html",
+    "roomPages": [
+      "picks-small-wins.html"
+    ],
+    "order": 4
+  },
+  {
+    "title": "XKZG Storage Bench Wooden Shoe Rack Bench Rustic Solid Wood Entryway Bench (Brown",
+    "description": "Product Size: 23.6\"W x 11.8\"D x 16.5\"H; Load Capacity: 550 lbs",
+    "url": "pick-xkzg-storage-bench-wooden-shoe-rack-bench-rustic-solid-wood-entryway-bench-brown.html",
+    "image": "https://m.media-amazon.com/images/I/711cSMEyraL._AC_SX679_.jpg",
+    "addedAt": "2026-04-03T17:18:09.199Z",
+    "room": "Small Wins",
+    "rooms": [
+      "Small Wins"
+    ],
+    "roomPage": "picks-small-wins.html",
+    "roomPages": [
+      "picks-small-wins.html"
+    ],
+    "order": 4
+  },
+  {
+    "title": "PFQCGU Swing Arm Wall Sconces",
+    "description": "Designed with an extension arm, with a USB port to charge the phone, and the dimmer can adjust the brightness according to your needs. The dimmer can only be used...",
+    "url": "pick-pfqcgu-swing-arm-wall-sconces.html",
+    "image": "https://m.media-amazon.com/images/I/61L4Z18ZsTL._AC_SL1500_.jpg",
+    "addedAt": "2026-04-03T17:17:43.696Z",
+    "room": "Small Wins",
+    "rooms": [
+      "Small Wins"
+    ],
+    "roomPage": "picks-small-wins.html",
+    "roomPages": [
+      "picks-small-wins.html"
+    ],
+    "order": 4
+  },
+  {
+    "title": "Achillea Reversible Paisley Pashmina Rave Scarf - Exotic Indian Shawls and Wraps for Evening Dresses",
+    "description": "A practical achillea reversible paisley pashmina rave scarf - exotic indian shawls and wraps for evening dresses pick for updated spaces and cleaner styling decisions.",
+    "url": "pick-achillea-reversible-paisley-pashmina-rave-scarf-exotic-indian-shawls-and-wraps-for-evening-dresses.html",
+    "image": "https://m.media-amazon.com/images/I/91ThT+APXLL._AC_SX679_.jpg",
+    "addedAt": "2026-04-03T17:16:33.595Z",
+    "room": "Small Wins",
+    "rooms": [
+      "Small Wins"
+    ],
+    "roomPage": "picks-small-wins.html",
+    "roomPages": [
+      "picks-small-wins.html"
+    ],
+    "order": 4
+  },
+  {
+    "title": "PHPH Wood Floating Shelves for Wall",
+    "description": "Real Wood Floating Shelves: Crafted from solid wood for a durable and sturdy design. PHPH wood floating shelves with natural wood grain give a rustic feel to any...",
+    "url": "pick-phph-wood-floating-shelves-for-wall.html",
+    "image": "https://m.media-amazon.com/images/I/81n92CegwWL._AC_SX679_.jpg",
+    "addedAt": "2026-04-03T17:12:38.654Z",
+    "room": "Small Wins",
+    "rooms": [
+      "Small Wins"
+    ],
+    "roomPage": "picks-small-wins.html",
+    "roomPages": [
+      "picks-small-wins.html"
+    ],
+    "order": 4
   },
   {
     "title": "Fun Memories 48-inch Floating Shelves for Wall",

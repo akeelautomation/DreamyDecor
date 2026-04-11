@@ -1,0 +1,27 @@
+#!/bin/sh
+set -eu
+
+blocked_files=""
+
+for file in $(git diff --cached --name-only --diff-filter=ACM); do
+  if git show ":$file" | grep -Eiq 'sk-or-[A-Za-z0-9_-]+'; then
+    blocked_files="${blocked_files}\n- $file"
+    continue
+  fi
+
+  if git show ":$file" | grep -Eiq 'OPENROUTER_API_KEY[[:space:]]*=[[:space:]]*["'"'"']?sk-or-[A-Za-z0-9_-]+'; then
+    blocked_files="${blocked_files}\n- $file"
+    continue
+  fi
+
+  if git show ":$file" | grep -Eiq 'authorization[[:space:]]*[:=][[:space:]]*[`"'"'"']?Bearer[[:space:]]+sk-or-'; then
+    blocked_files="${blocked_files}\n- $file"
+  fi
+done
+
+if [ -n "$blocked_files" ]; then
+  printf '%s\n' "Commit blocked: possible OpenRouter secret found in staged content." >&2
+  printf '%b\n' "$blocked_files" >&2
+  printf '%s\n' "Move secrets to .env.local or Cloudflare Pages secrets, then recommit." >&2
+  exit 1
+fi

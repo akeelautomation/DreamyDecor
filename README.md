@@ -74,7 +74,7 @@ Windows note: if PowerShell blocks `npx.ps1`, run it via `cmd`:
 cmd /c npx wrangler pages dev . --port 8788
 ```
 
-Local env vars: create a `.dev.vars` file in the repo root (ignored by git) for secrets like `PAYMENT_JWT_SECRET`, `KIE_API_KEY`, and PayPal credentials.
+Local env vars: copy `.env.example` to `.env.local` in the repo root for secrets like `PAYMENT_JWT_SECRET`, `KIE_API_KEY`, `OPENROUTER_API_KEY`, and PayPal credentials. Keep real secrets out of tracked files.
 
 ## Affiliate Admin App
 
@@ -106,3 +106,13 @@ Image input notes:
 
 Requirement:
 - Node.js 18+ so the built-in `fetch` API is available.
+
+Local config for the affiliate admin:
+- Copy `.env.example` to `.env.local` for local-only values.
+- Keep real `OPENROUTER_API_KEY` values out of `.env.example`, `README.md`, and any tracked file.
+- Preferred setup: keep the real OpenRouter key only in Cloudflare Pages secrets when possible.
+
+Secret safety:
+- `.env.local`, `.env.*`, `.dev.vars`, and `.dev.vars.*` are ignored by git.
+- Enable the repo hook once per clone with `git config core.hooksPath .githooks` to block obvious OpenRouter secrets before commit.
+- If a key was ever pushed to GitHub, rotate it in OpenRouter before reusing it.

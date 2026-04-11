@@ -1,4 +1,5 @@
 const http = require("http");
+const fsSync = require("fs");
 const fs = require("fs/promises");
 const path = require("path");
 const { URL } = require("url");
@@ -6,13 +7,51 @@ const { writeProductIndex } = require("../generate-product-index");
 const { writeLatestPicksPage } = require("../generate-latest-picks");
 
 const ROOT_DIR = path.resolve(__dirname, "..", "..");
+
+function loadEnvFile(filePath) {
+  if (!fsSync.existsSync(filePath)) {
+    return;
+  }
+
+  const lines = fsSync.readFileSync(filePath, "utf8").split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) {
+      continue;
+    }
+
+    const match = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/);
+    if (!match) {
+      continue;
+    }
+
+    const [, key, rawValue] = match;
+    let value = rawValue.trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+
+    if (!(key in process.env)) {
+      process.env[key] = value.replace(/\\n/g, "\n");
+    }
+  }
+}
+
+loadEnvFile(path.join(ROOT_DIR, ".env.local"));
+loadEnvFile(path.join(ROOT_DIR, ".env"));
+loadEnvFile(path.join(ROOT_DIR, ".dev.vars"));
+
 const PUBLIC_DIR = path.join(__dirname, "public");
 const PICKS_HUB_PATH = path.join(ROOT_DIR, "picks.html");
 const SITE_URL = "https://dreamydecor.ai";
 const PORT = Number(process.env.PORT || 4311);
-const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const OPENROUTER_MODEL = "nvidia/nemotron-3-super-120b-a12b:free";
-const LOCAL_ENV_PATHS = [path.join(ROOT_DIR, ".dev.vars"), path.join(ROOT_DIR, ".env")];
+const OPENROUTER_API_URL = process.env.OPENROUTER_API_BASE_URL || "https://openrouter.ai/api/v1/chat/completions";
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || "nvidia/nemotron-3-super-120b-a12b:free";
+const OPENROUTER_REFERER = process.env.OPENROUTER_HTTP_REFERER || SITE_URL;
+const OPENROUTER_TITLE = "Dreamy Decor Affiliate Admin";
 const SECTION_PAGE_CONFIG = [
   { id: "living", pageFile: "picks-living.html" },
   { id: "bedroom", pageFile: "picks-bedroom.html" },
@@ -267,58 +306,10 @@ function normalizeGeneratedList(values, minimum, maximum) {
   return unique;
 }
 
-async function loadLocalEnv() {
-  const loaded = {};
-
-  for (const envPath of LOCAL_ENV_PATHS) {
-    try {
-      const raw = await fs.readFile(envPath, "utf8");
-      for (const line of raw.split(/\r?\n/)) {
-        const trimmed = line.trim();
-        if (!trimmed || trimmed.startsWith("#")) {
-          continue;
-        }
-
-        const separatorIndex = trimmed.indexOf("=");
-        if (separatorIndex <= 0) {
-          continue;
-        }
-
-        const key = trimmed.slice(0, separatorIndex).trim();
-        if (!key || Object.prototype.hasOwnProperty.call(loaded, key)) {
-          continue;
-        }
-
-        let value = trimmed.slice(separatorIndex + 1).trim();
-        if (
-          (value.startsWith('"') && value.endsWith('"')) ||
-          (value.startsWith("'") && value.endsWith("'"))
-        ) {
-          value = value.slice(1, -1);
-        }
-
-        loaded[key] = value;
-      }
-    } catch (error) {
-      if (error.code !== "ENOENT") {
-        throw error;
-      }
-    }
-  }
-
-  return loaded;
-}
-
-async function getConfigValue(name, fallback = "") {
+function getConfigValue(name, fallback = "") {
   const processValue = process.env[name];
   if (processValue != null && String(processValue).trim()) {
     return String(processValue).trim();
-  }
-
-  const localEnv = await loadLocalEnv();
-  const localValue = localEnv[name];
-  if (localValue != null && String(localValue).trim()) {
-    return String(localValue).trim();
   }
 
   return fallback;
@@ -516,13 +507,13 @@ function buildReviewRequestBody({ model, systemPrompt, userPrompt, attempt }) {
 }
 
 async function generateReviewContent({ shortTitle, brand, fullTitle, bullets, price, sectionLabel }) {
-  const apiKey = await getConfigValue("OPENROUTER_API_KEY");
+  const apiKey = getConfigValue("OPENROUTER_API_KEY");
   if (!apiKey) {
-    throw new Error("OPENROUTER_API_KEY is missing. Add it to your shell environment, .env, or .dev.vars before analyzing products.");
+    throw new Error("OPENROUTER_API_KEY is missing. Add it to .env.local, your shell environment, or Cloudflare secrets before analyzing products.");
   }
 
-  const apiUrl = await getConfigValue("OPENROUTER_API_BASE_URL", OPENROUTER_API_URL);
-  const model = await getConfigValue("OPENROUTER_MODEL", OPENROUTER_MODEL);
+  const apiUrl = getConfigValue("OPENROUTER_API_BASE_URL", OPENROUTER_API_URL);
+  const model = getConfigValue("OPENROUTER_MODEL", OPENROUTER_MODEL);
 
   const promptPayload = {
     shortTitle,
@@ -567,8 +558,8 @@ async function generateReviewContent({ shortTitle, brand, fullTitle, bullets, pr
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": SITE_URL,
-        "X-Title": "Dreamy Decor Affiliate Admin",
+        "HTTP-Referer": OPENROUTER_REFERER,
+        "X-Title": OPENROUTER_TITLE,
       },
       body: JSON.stringify(buildReviewRequestBody({ model, systemPrompt, userPrompt, attempt })),
     });

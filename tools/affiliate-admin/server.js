@@ -403,7 +403,7 @@ function normalizeReviewContent(rawReview) {
     whoItsBestFor: normalizeGeneratedParagraph(rawReview?.whoItsBestFor),
     whoShouldSkipIt: normalizeGeneratedParagraph(rawReview?.whoShouldSkipIt),
     whereItWorksBest: normalizeGeneratedParagraph(rawReview?.whereItWorksBest),
-    pros: normalizeGeneratedList(rawReview?.pros, 2, 3),
+    pros: normalizeGeneratedList(rawReview?.pros, 3, 3),
     cons: normalizeGeneratedList(rawReview?.cons, 1, 2),
   };
 
@@ -535,7 +535,7 @@ async function generateReviewContent({ shortTitle, brand, fullTitle, bullets, pr
     '  "whoItsBestFor": "1-2 sentences",',
     '  "whoShouldSkipIt": "1-2 sentences",',
     '  "whereItWorksBest": "1-2 sentences",',
-    '  "pros": ["2-3 concise items"],',
+    '  "pros": ["3 concise items"],',
     '  "cons": ["1-2 concise items"]',
     "}",
     "Rules:",
@@ -543,7 +543,7 @@ async function generateReviewContent({ shortTitle, brand, fullTitle, bullets, pr
     "- Rephrase ideas instead of echoing the supplied features.",
     "- Pros and cons must be concise, plain-text list items.",
     "- Do not make up exact dimensions, included hardware, wash instructions, or material percentages unless they are in the source details.",
-    "- Keep pros to 2-3 items and cons to 1-2 items.",
+    "- Keep pros to exactly 3 items and cons to 1-2 items.",
     "- Keep every field compact. Avoid long paragraphs.",
     "- If the response starts to get long, shorten it instead of adding more detail.",
     "",
@@ -1422,7 +1422,10 @@ module.exports = {
   SITE_URL,
   analyzeAffiliateInput,
   createServer,
+  generateReviewContent,
   getSections,
+  renderProductCard,
   renderProductPage,
+  replaceOrInsertCard,
   writeProductFiles,
 };

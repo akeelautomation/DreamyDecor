@@ -48,9 +48,7 @@ const SECTION_FALLBACKS = [
 const REVIEW_SECTION_CONFIG = [
   { key: "whoItsBestFor", label: "Who It's Best For", type: "text" },
   { key: "whoShouldSkipIt", label: "Who Should Skip It", type: "text" },
-  { key: "textureMaterialFeel", label: "Texture / Material Feel", type: "text" },
   { key: "whereItWorksBest", label: "Where It Works Best", type: "text" },
-  { key: "sizeGuidance", label: "Size Guidance", type: "text" },
   { key: "pros", label: "Pros", type: "list" },
   { key: "cons", label: "Cons", type: "list" },
 ];
@@ -413,9 +411,7 @@ function normalizeReviewContent(rawReview) {
     pageSummary: truncate(normalizeGeneratedParagraph(rawReview?.pageSummary), 170),
     whoItsBestFor: normalizeGeneratedParagraph(rawReview?.whoItsBestFor),
     whoShouldSkipIt: normalizeGeneratedParagraph(rawReview?.whoShouldSkipIt),
-    textureMaterialFeel: normalizeGeneratedParagraph(rawReview?.textureMaterialFeel),
     whereItWorksBest: normalizeGeneratedParagraph(rawReview?.whereItWorksBest),
-    sizeGuidance: normalizeGeneratedParagraph(rawReview?.sizeGuidance),
     pros: normalizeGeneratedList(rawReview?.pros, 2, 3),
     cons: normalizeGeneratedList(rawReview?.cons, 1, 2),
   };
@@ -463,7 +459,7 @@ function extractFieldValueFromText(text, fieldName) {
 function extractListFromText(text, fieldName) {
   const escapedName = escapeRegExp(fieldName);
   const blockPattern = new RegExp(
-    `^\\s*(?:[*-]?\\s*)?${escapedName}\\s*:?\\s*$([\\s\\S]*?)(?=^\\s*(?:[*-]?\\s*)?(?:cardCopy|pageSummary|whoItsBestFor|whoShouldSkipIt|textureMaterialFeel|whereItWorksBest|sizeGuidance|pros|cons)\\s*:|\\Z)`,
+    `^\\s*(?:[*-]?\\s*)?${escapedName}\\s*:?\\s*$([\\s\\S]*?)(?=^\\s*(?:[*-]?\\s*)?(?:cardCopy|pageSummary|whoItsBestFor|whoShouldSkipIt|whereItWorksBest|pros|cons)\\s*:|\\Z)`,
     "im",
   );
   const blockMatch = text.match(blockPattern);
@@ -484,9 +480,7 @@ function parseReviewResponseText(text) {
       pageSummary: extractFieldValueFromText(text, "pageSummary"),
       whoItsBestFor: extractFieldValueFromText(text, "whoItsBestFor"),
       whoShouldSkipIt: extractFieldValueFromText(text, "whoShouldSkipIt"),
-      textureMaterialFeel: extractFieldValueFromText(text, "textureMaterialFeel"),
       whereItWorksBest: extractFieldValueFromText(text, "whereItWorksBest"),
-      sizeGuidance: extractFieldValueFromText(text, "sizeGuidance"),
       pros: extractListFromText(text, "pros"),
       cons: extractListFromText(text, "cons"),
     };
@@ -549,17 +543,13 @@ async function generateReviewContent({ shortTitle, brand, fullTitle, bullets, pr
     '  "pageSummary": "1 sentence, room-focused subtitle, 170 characters or less",',
     '  "whoItsBestFor": "1-2 sentences",',
     '  "whoShouldSkipIt": "1-2 sentences",',
-    '  "textureMaterialFeel": "1-2 sentences",',
     '  "whereItWorksBest": "1-2 sentences",',
-    '  "sizeGuidance": "1-2 sentences",',
     '  "pros": ["2-3 concise items"],',
     '  "cons": ["1-2 concise items"]',
     "}",
     "Rules:",
     "- Keep the tone practical, specific, and honest.",
     "- Rephrase ideas instead of echoing the supplied features.",
-    "- Size guidance must tell the reader to check the listing dimensions if exact scale is not clear.",
-    "- Texture / material feel should say when the finish or hand-feel is only partially confirmed.",
     "- Pros and cons must be concise, plain-text list items.",
     "- Do not make up exact dimensions, included hardware, wash instructions, or material percentages unless they are in the source details.",
     "- Keep pros to 2-3 items and cons to 1-2 items.",
@@ -591,6 +581,18 @@ async function generateReviewContent({ shortTitle, brand, fullTitle, bullets, pr
         message = parsed?.error?.message || parsed?.message || rawError;
       } catch (_error) {
         // Keep raw text when the response body is not JSON.
+      }
+
+      if (response.status === 401) {
+        if (/user not found/i.test(message)) {
+          throw new Error(
+            "OpenRouter rejected the API key with 'User not found'. The key in OPENROUTER_API_KEY is invalid, revoked, or belongs to a missing account. Create a fresh OpenRouter key and replace the value in .dev.vars, then restart the affiliate admin.",
+          );
+        }
+
+        throw new Error(
+          `OpenRouter authentication failed (${response.status}). Replace OPENROUTER_API_KEY with a valid key and restart the affiliate admin. Details: ${message}`,
+        );
       }
 
       throw new Error(`OpenRouter request failed (${response.status}): ${message}`);

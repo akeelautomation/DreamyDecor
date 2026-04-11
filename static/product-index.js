@@ -1,5 +1,21 @@
 window.DREAMY_DECOR_PRODUCTS = [
   {
+    "title": "Welnow Lazy Chair with Ottoman",
+    "description": "A cozy, modern accent chair with ottoman and side pocket, designed for relaxed lounging in compact spaces.",
+    "url": "pick-welnow-lazy-chair-with-ottoman.html",
+    "image": "https://m.media-amazon.com/images/I/61j96OFJygL._AC_SL1500_.jpg",
+    "addedAt": "2026-04-11T07:00:49.351Z",
+    "room": "Living Room",
+    "rooms": [
+      "Living Room"
+    ],
+    "roomPage": "picks-living.html",
+    "roomPages": [
+      "picks-living.html"
+    ],
+    "order": 1
+  },
+  {
     "title": "Tiny Land 2-in-1 Foldable Kids Couch with Pockets - Soft Thick Toddler Sofa",
     "description": "A foldable 2-in-1 kids sofa that converts to a bed, featuring thick foam and clean piping for a modern look in playrooms or bedrooms.",
     "url": "pick-tiny-land-2-in-1-foldable-kids-couch-with-pockets-soft-thick-toddler-sofa.html",
@@ -688,6 +704,22 @@ window.DREAMY_DECOR_PRODUCTS = [
       "picks-living.html"
     ],
     "order": 1
+  },
+  {
+    "title": "Aodenge Plush Faux Fur Bean Bag Chairs",
+    "description": "Sink into plush faux fur comfort with memory foam support in a chair-shaped bean bag that cradles your back and arms.",
+    "url": "pick-aodenge-plush-faux-fur-bean-bag-chairs.html",
+    "image": "https://m.media-amazon.com/images/I/819N5kH1ReL._AC_SL1500_.jpg",
+    "addedAt": "2026-04-11T07:04:16.709Z",
+    "room": "Bedroom",
+    "rooms": [
+      "Bedroom"
+    ],
+    "roomPage": "picks-bedroom.html",
+    "roomPages": [
+      "picks-bedroom.html"
+    ],
+    "order": 2
   },
   {
     "title": "YUSOKI Sherpa Throw Blanket",

@@ -23,9 +23,7 @@ let lastAnalysis = null;
 const REVIEW_FIELDS = [
   { key: "whoItsBestFor", label: "Who It's Best For", type: "text" },
   { key: "whoShouldSkipIt", label: "Who Should Skip It", type: "text" },
-  { key: "textureMaterialFeel", label: "Texture / Material Feel", type: "text" },
   { key: "whereItWorksBest", label: "Where It Works Best", type: "text" },
-  { key: "sizeGuidance", label: "Size Guidance", type: "text" },
   { key: "pros", label: "Pros", type: "list" },
   { key: "cons", label: "Cons", type: "list" },
 ];

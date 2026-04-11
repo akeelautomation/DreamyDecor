@@ -10,6 +10,9 @@ const PUBLIC_DIR = path.join(__dirname, "public");
 const PICKS_HUB_PATH = path.join(ROOT_DIR, "picks.html");
 const SITE_URL = "https://dreamydecor.ai";
 const PORT = Number(process.env.PORT || 4311);
+const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+const OPENROUTER_MODEL = "nvidia/nemotron-3-super-120b-a12b:free";
+const LOCAL_ENV_PATHS = [path.join(ROOT_DIR, ".dev.vars"), path.join(ROOT_DIR, ".env")];
 const SECTION_PAGE_CONFIG = [
   { id: "living", pageFile: "picks-living.html" },
   { id: "bedroom", pageFile: "picks-bedroom.html" },
@@ -40,6 +43,16 @@ const SECTION_FALLBACKS = [
     id: "living",
     keywords: ["bookshelf", "sofa", "chair", "coffee table", "tv stand", "bean bag", "sectional"],
   },
+];
+
+const REVIEW_SECTION_CONFIG = [
+  { key: "whoItsBestFor", label: "Who It's Best For", type: "text" },
+  { key: "whoShouldSkipIt", label: "Who Should Skip It", type: "text" },
+  { key: "textureMaterialFeel", label: "Texture / Material Feel", type: "text" },
+  { key: "whereItWorksBest", label: "Where It Works Best", type: "text" },
+  { key: "sizeGuidance", label: "Size Guidance", type: "text" },
+  { key: "pros", label: "Pros", type: "list" },
+  { key: "cons", label: "Cons", type: "list" },
 ];
 
 function json(res, statusCode, payload) {
@@ -214,26 +227,391 @@ function chooseBestBullets(bullets) {
     .slice(0, 4);
 }
 
-function deriveSummary(bullets, shortTitle) {
-  const firstBullet = bullets[0];
-  if (firstBullet) {
-    return truncate(toSentenceCase(firstBullet), 170);
-  }
-
-  return `${shortTitle} with affiliate-ready product details and Pinterest-friendly metadata.`;
-}
-
-function deriveCardCopy(bullets, shortTitle) {
-  const candidate = bullets.find((bullet) => !/^\d/.test(bullet)) || bullets[0];
-  if (candidate) {
-    return truncate(toSentenceCase(candidate), 165);
-  }
-
-  return `A practical ${shortTitle.toLowerCase()} pick for updated spaces and cleaner styling decisions.`;
-}
-
 function deriveMetaDescription(shortTitle, cardCopy) {
   return truncate(`Affiliate pick: ${shortTitle}. ${cardCopy}`, 158);
+}
+
+function normalizeGeneratedText(value) {
+  return toAsciiText(String(value ?? ""))
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizeGeneratedParagraph(value) {
+  const text = normalizeGeneratedText(value).replace(/^[\-*\u2022\d.)\s]+/, "");
+  return text ? toSentenceCase(text) : "";
+}
+
+function normalizeGeneratedList(values, minimum, maximum) {
+  const rawValues = Array.isArray(values)
+    ? values
+    : String(values ?? "")
+        .split(/\r?\n|[;\u2022]/)
+        .map((entry) => entry.trim());
+
+  const unique = [];
+  for (const value of rawValues) {
+    const normalized = normalizeGeneratedParagraph(value);
+    if (!normalized || unique.includes(normalized)) {
+      continue;
+    }
+
+    unique.push(normalized);
+    if (unique.length >= maximum) {
+      break;
+    }
+  }
+
+  if (unique.length < minimum) {
+    throw new Error(`Expected at least ${minimum} list items from the AI response.`);
+  }
+
+  return unique;
+}
+
+async function loadLocalEnv() {
+  const loaded = {};
+
+  for (const envPath of LOCAL_ENV_PATHS) {
+    try {
+      const raw = await fs.readFile(envPath, "utf8");
+      for (const line of raw.split(/\r?\n/)) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith("#")) {
+          continue;
+        }
+
+        const separatorIndex = trimmed.indexOf("=");
+        if (separatorIndex <= 0) {
+          continue;
+        }
+
+        const key = trimmed.slice(0, separatorIndex).trim();
+        if (!key || Object.prototype.hasOwnProperty.call(loaded, key)) {
+          continue;
+        }
+
+        let value = trimmed.slice(separatorIndex + 1).trim();
+        if (
+          (value.startsWith('"') && value.endsWith('"')) ||
+          (value.startsWith("'") && value.endsWith("'"))
+        ) {
+          value = value.slice(1, -1);
+        }
+
+        loaded[key] = value;
+      }
+    } catch (error) {
+      if (error.code !== "ENOENT") {
+        throw error;
+      }
+    }
+  }
+
+  return loaded;
+}
+
+async function getConfigValue(name, fallback = "") {
+  const processValue = process.env[name];
+  if (processValue != null && String(processValue).trim()) {
+    return String(processValue).trim();
+  }
+
+  const localEnv = await loadLocalEnv();
+  const localValue = localEnv[name];
+  if (localValue != null && String(localValue).trim()) {
+    return String(localValue).trim();
+  }
+
+  return fallback;
+}
+
+function extractJsonObject(text) {
+  const source = String(text ?? "").trim();
+  const fencedMatch = source.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const candidate = fencedMatch ? fencedMatch[1].trim() : source;
+  const start = candidate.indexOf("{");
+
+  if (start < 0) {
+    throw new Error("The AI response did not contain a JSON object.");
+  }
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+
+  for (let index = start; index < candidate.length; index += 1) {
+    const char = candidate[index];
+
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+
+    if (char === "\\") {
+      escaped = true;
+      continue;
+    }
+
+    if (char === '"') {
+      inString = !inString;
+      continue;
+    }
+
+    if (inString) {
+      continue;
+    }
+
+    if (char === "{") {
+      depth += 1;
+      continue;
+    }
+
+    if (char === "}") {
+      depth -= 1;
+      if (depth === 0) {
+        return JSON.parse(candidate.slice(start, index + 1));
+      }
+    }
+  }
+
+  throw new Error("The AI response contained an incomplete JSON object.");
+}
+
+function extractMessageText(content) {
+  if (typeof content === "string") {
+    return content;
+  }
+
+  if (Array.isArray(content)) {
+    return content
+      .map((part) => {
+        if (typeof part === "string") {
+          return part;
+        }
+
+        if (part?.type === "text" && typeof part.text === "string") {
+          return part.text;
+        }
+
+        return "";
+      })
+      .join("\n")
+      .trim();
+  }
+
+  if (content && typeof content === "object") {
+    return JSON.stringify(content);
+  }
+
+  return "";
+}
+
+function normalizeReviewContent(rawReview) {
+  const review = {
+    cardCopy: truncate(normalizeGeneratedParagraph(rawReview?.cardCopy), 165),
+    pageSummary: truncate(normalizeGeneratedParagraph(rawReview?.pageSummary), 170),
+    whoItsBestFor: normalizeGeneratedParagraph(rawReview?.whoItsBestFor),
+    whoShouldSkipIt: normalizeGeneratedParagraph(rawReview?.whoShouldSkipIt),
+    textureMaterialFeel: normalizeGeneratedParagraph(rawReview?.textureMaterialFeel),
+    whereItWorksBest: normalizeGeneratedParagraph(rawReview?.whereItWorksBest),
+    sizeGuidance: normalizeGeneratedParagraph(rawReview?.sizeGuidance),
+    pros: normalizeGeneratedList(rawReview?.pros, 2, 3),
+    cons: normalizeGeneratedList(rawReview?.cons, 1, 2),
+  };
+
+  for (const section of REVIEW_SECTION_CONFIG.filter((entry) => entry.type === "text")) {
+    if (!review[section.key]) {
+      throw new Error(`The AI response was missing "${section.label}".`);
+    }
+  }
+
+  if (!review.cardCopy) {
+    throw new Error('The AI response was missing "cardCopy".');
+  }
+
+  if (!review.pageSummary) {
+    throw new Error('The AI response was missing "pageSummary".');
+  }
+
+  return review;
+}
+
+function extractFieldValueFromText(text, fieldName) {
+  const escapedName = escapeRegExp(fieldName);
+  const patterns = [
+    new RegExp(`^\\s*${escapedName}\\s*:\\s*(.+)$`, "im"),
+    new RegExp(`^\\s*[*-]?\\s*${escapedName}\\s*:\\s*(.+)$`, "im"),
+    new RegExp(`^\\s*#{1,6}\\s*${escapedName}\\s*$([\\s\\S]*?)(?=^\\s*#{1,6}\\s+|\\Z)`, "im"),
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (!match) {
+      continue;
+    }
+
+    const value = normalizeGeneratedText(match[1] || "");
+    if (value) {
+      return value;
+    }
+  }
+
+  return "";
+}
+
+function extractListFromText(text, fieldName) {
+  const escapedName = escapeRegExp(fieldName);
+  const blockPattern = new RegExp(
+    `^\\s*(?:[*-]?\\s*)?${escapedName}\\s*:?\\s*$([\\s\\S]*?)(?=^\\s*(?:[*-]?\\s*)?(?:cardCopy|pageSummary|whoItsBestFor|whoShouldSkipIt|textureMaterialFeel|whereItWorksBest|sizeGuidance|pros|cons)\\s*:|\\Z)`,
+    "im",
+  );
+  const blockMatch = text.match(blockPattern);
+  const source = blockMatch?.[1] || extractFieldValueFromText(text, fieldName);
+
+  return String(source ?? "")
+    .split(/\r?\n/)
+    .map((line) => line.replace(/^\s*[-*•]\s*/, "").trim())
+    .filter(Boolean);
+}
+
+function parseReviewResponseText(text) {
+  try {
+    return extractJsonObject(text);
+  } catch (_error) {
+    const fallback = {
+      cardCopy: extractFieldValueFromText(text, "cardCopy"),
+      pageSummary: extractFieldValueFromText(text, "pageSummary"),
+      whoItsBestFor: extractFieldValueFromText(text, "whoItsBestFor"),
+      whoShouldSkipIt: extractFieldValueFromText(text, "whoShouldSkipIt"),
+      textureMaterialFeel: extractFieldValueFromText(text, "textureMaterialFeel"),
+      whereItWorksBest: extractFieldValueFromText(text, "whereItWorksBest"),
+      sizeGuidance: extractFieldValueFromText(text, "sizeGuidance"),
+      pros: extractListFromText(text, "pros"),
+      cons: extractListFromText(text, "cons"),
+    };
+
+    if (fallback.cardCopy && fallback.pageSummary && fallback.pros.length && fallback.cons.length) {
+      return fallback;
+    }
+
+    throw _error;
+  }
+}
+
+function buildReviewRequestBody({ model, systemPrompt, userPrompt, attempt }) {
+  const base = {
+    model,
+    temperature: attempt === 0 ? 0.2 : 0.1,
+    max_completion_tokens: attempt === 0 ? 1200 : 1500,
+    reasoning: { effort: "none", exclude: true },
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ],
+  };
+
+  if (attempt === 0) {
+    return {
+      ...base,
+      response_format: { type: "json_object" },
+    };
+  }
+
+  return base;
+}
+
+async function generateReviewContent({ shortTitle, brand, fullTitle, bullets, price, sectionLabel }) {
+  const apiKey = await getConfigValue("OPENROUTER_API_KEY");
+  if (!apiKey) {
+    throw new Error("OPENROUTER_API_KEY is missing. Add it to your shell environment, .env, or .dev.vars before analyzing products.");
+  }
+
+  const apiUrl = await getConfigValue("OPENROUTER_API_BASE_URL", OPENROUTER_API_URL);
+  const model = await getConfigValue("OPENROUTER_MODEL", OPENROUTER_MODEL);
+
+  const promptPayload = {
+    shortTitle,
+    brand,
+    fullTitle,
+    section: sectionLabel,
+    price: price ? `$${price}` : "Not available",
+    amazonFeatures: bullets,
+  };
+
+  const systemPrompt =
+    "You write affiliate product copy for a home decor site. Rewrite product information into grounded buying guidance. Do not copy Amazon feature wording, do not mention Amazon, and do not invent dimensions, materials, hardware, or performance claims that are not supported by the provided details. If information is limited, say so briefly and honestly. If exact size is not provided, tell the reader to check the listing dimensions instead of guessing. Return valid JSON only.";
+
+  const userPrompt = [
+    "Create structured product notes using this schema:",
+    "{",
+    '  "cardCopy": "1-2 sentences, concise and editorial, 100-165 characters if possible",',
+    '  "pageSummary": "1 sentence, room-focused subtitle, 170 characters or less",',
+    '  "whoItsBestFor": "1-2 sentences",',
+    '  "whoShouldSkipIt": "1-2 sentences",',
+    '  "textureMaterialFeel": "1-2 sentences",',
+    '  "whereItWorksBest": "1-2 sentences",',
+    '  "sizeGuidance": "1-2 sentences",',
+    '  "pros": ["2-3 concise items"],',
+    '  "cons": ["1-2 concise items"]',
+    "}",
+    "Rules:",
+    "- Keep the tone practical, specific, and honest.",
+    "- Rephrase ideas instead of echoing the supplied features.",
+    "- Size guidance must tell the reader to check the listing dimensions if exact scale is not clear.",
+    "- Texture / material feel should say when the finish or hand-feel is only partially confirmed.",
+    "- Pros and cons must be concise, plain-text list items.",
+    "- Do not make up exact dimensions, included hardware, wash instructions, or material percentages unless they are in the source details.",
+    "- Keep pros to 2-3 items and cons to 1-2 items.",
+    "- Keep every field compact. Avoid long paragraphs.",
+    "- If the response starts to get long, shorten it instead of adding more detail.",
+    "",
+    JSON.stringify(promptPayload, null, 2),
+  ].join("\n");
+
+  let lastError = null;
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": SITE_URL,
+        "X-Title": "Dreamy Decor Affiliate Admin",
+      },
+      body: JSON.stringify(buildReviewRequestBody({ model, systemPrompt, userPrompt, attempt })),
+    });
+
+    if (!response.ok) {
+      const rawError = await response.text();
+      let message = rawError;
+      try {
+        const parsed = JSON.parse(rawError);
+        message = parsed?.error?.message || parsed?.message || rawError;
+      } catch (_error) {
+        // Keep raw text when the response body is not JSON.
+      }
+
+      throw new Error(`OpenRouter request failed (${response.status}): ${message}`);
+    }
+
+    const payload = await response.json();
+    const messageText = extractMessageText(payload?.choices?.[0]?.message?.content);
+    const finishReason = payload?.choices?.[0]?.finish_reason;
+
+    try {
+      const parsed = parseReviewResponseText(messageText);
+      return normalizeReviewContent(parsed);
+    } catch (error) {
+      lastError = error;
+      if (finishReason !== "length" && attempt === 2) {
+        throw new Error(`AI review generation failed: ${error.message}`);
+      }
+    }
+  }
+
+  throw new Error(`AI review generation failed: ${lastError?.message || "unexpected response format"}`);
 }
 
 function normalizeMoneyValue(value) {
@@ -424,6 +802,39 @@ async function fetchAmazonHtml(canonicalUrl) {
   return response.text();
 }
 
+function normalizeOptionalInput(value) {
+  return String(value ?? "").trim();
+}
+
+function inputMatchesProvidedValue(inputValue, providedValue) {
+  const normalizedInput = normalizeOptionalInput(inputValue);
+  return !normalizedInput || normalizedInput === normalizeOptionalInput(providedValue);
+}
+
+function canReuseProvidedAnalysis(input, analysis) {
+  if (!analysis || typeof analysis !== "object" || !analysis.review) {
+    return false;
+  }
+
+  const inputImageUrls = normalizeImageUrls(input.imageUrls?.length ? input.imageUrls : input.imageUrl);
+  const analysisImageUrls = normalizeImageUrls(analysis.imageUrls?.length ? analysis.imageUrls : analysis.imageUrl);
+
+  if (
+    normalizeOptionalInput(input.affiliateUrl) !== normalizeOptionalInput(analysis.affiliateUrl) ||
+    JSON.stringify(inputImageUrls) !== JSON.stringify(analysisImageUrls)
+  ) {
+    return false;
+  }
+
+  return (
+    inputMatchesProvidedValue(input.sectionId, analysis.sectionId) &&
+    inputMatchesProvidedValue(input.shortTitle, analysis.shortTitle) &&
+    inputMatchesProvidedValue(input.cardCopy, analysis.cardCopy) &&
+    inputMatchesProvidedValue(input.pageSummary, analysis.pageSummary) &&
+    inputMatchesProvidedValue(input.altText, analysis.altText)
+  );
+}
+
 function extractMatch(html, regex) {
   const match = html.match(regex);
   return match ? cleanText(match[1]) : "";
@@ -448,11 +859,10 @@ function createAnalysis(input, amazonData, sections) {
     throw new Error("At least one image URL is required.");
   }
 
-  const sectionIds = sections.map((section) => section.id);
-  const shortTitle = input.shortTitle?.trim() || titleFromAmazonTitle(amazonData.fullTitle, amazonData.brand);
-  const cardCopy = input.cardCopy?.trim() || deriveCardCopy(amazonData.bullets, shortTitle);
-  const pageSummary = input.pageSummary?.trim() || deriveSummary(amazonData.bullets, shortTitle);
-  const sectionId = input.sectionId || inferSectionId(`${shortTitle} ${amazonData.slugHint}`, sectionIds);
+  const shortTitle = amazonData.shortTitle;
+  const cardCopy = input.cardCopy?.trim() || amazonData.review.cardCopy;
+  const pageSummary = input.pageSummary?.trim() || amazonData.review.pageSummary;
+  const sectionId = amazonData.sectionId;
   const pageSlug = slugify(shortTitle) || slugify(amazonData.slugHint) || amazonData.asin.toLowerCase();
   const pageFile = `pick-${pageSlug}.html`;
   const primaryImageUrl = imageUrls[0];
@@ -475,7 +885,7 @@ function createAnalysis(input, amazonData, sections) {
     shortTitle,
     cardCopy,
     pageSummary,
-    bullets: amazonData.bullets.length ? amazonData.bullets : [cardCopy],
+    review: amazonData.review,
     price: amazonData.price,
     priceLabel: "Check Latest Price on Amazon",
     availability: amazonData.availability,
@@ -586,6 +996,25 @@ ${thumbButtons}
     : "";
 
   return { media, script };
+}
+
+function renderReviewMarkup(review) {
+  return REVIEW_SECTION_CONFIG.map((section) => {
+    const value = review[section.key];
+    if (section.type === "list") {
+      return `            <section class="pickDetail__section pickDetail__section--list">
+              <h2 class="pickDetail__sectionTitle">${escapeHtml(section.label)}</h2>
+              <ul class="pickDetail__list">
+${value.map((item) => `                <li>${escapeHtml(item)}</li>`).join("\n")}
+              </ul>
+            </section>`;
+    }
+
+    return `            <section class="pickDetail__section">
+              <h2 class="pickDetail__sectionTitle">${escapeHtml(section.label)}</h2>
+              <p class="pickDetail__sectionCopy">${escapeHtml(value)}</p>
+            </section>`;
+  }).join("\n");
 }
 
 function renderProductPage(data) {
@@ -702,9 +1131,9 @@ ${gallery.media}
               <div class="pickDetail__meta">ASIN ${escapeHtml(data.asin)}</div>
             </div>
 
-            <ul class="pickDetail__bullets">
-${data.bullets.map((bullet) => `              <li>${escapeHtml(toSentenceCase(bullet))}</li>`).join("\n")}
-            </ul>
+            <div class="pickDetail__notes">
+${renderReviewMarkup(data.review)}
+            </div>
 
             <div class="actions actions--spread">
               <a class="btn" href="${escapeHtml(data.sectionUrl)}">Back to ${escapeHtml(data.sectionLabel)} picks</a>
@@ -856,16 +1285,34 @@ async function analyzeAffiliateInput(input) {
     throw new Error("Could not read the Amazon product title.");
   }
 
+  const brand = normalizeBrand(rawBrand, fullTitle);
+  const shortTitle = input.shortTitle?.trim() || titleFromAmazonTitle(fullTitle, brand);
+  const sectionIds = sections.map((section) => section.id);
+  const sectionId = input.sectionId || inferSectionId(`${shortTitle} ${pathInfo.slugHint}`, sectionIds);
+  const sectionLabel = sections.find((section) => section.id === sectionId)?.label || "Decor Picks";
+  const price = extractMoney(html);
+  const review = await generateReviewContent({
+    shortTitle,
+    brand,
+    fullTitle,
+    bullets,
+    price,
+    sectionLabel,
+  });
+
   const analysis = createAnalysis(
     input,
     {
       asin: pathInfo.asin,
       slugHint: pathInfo.slugHint,
       fullTitle,
-      brand: normalizeBrand(rawBrand, fullTitle),
+      brand,
       bullets,
-      price: extractMoney(html),
+      price,
       availability,
+      shortTitle,
+      sectionId,
+      review,
     },
     sections,
   );
@@ -939,7 +1386,10 @@ function createServer() {
       }
 
       if (req.method === "POST" && requestUrl.pathname === "/api/publish") {
-        const analysis = await analyzeAffiliateInput(await readRequestBody(req));
+        const requestBody = await readRequestBody(req);
+        const analysis = canReuseProvidedAnalysis(requestBody, requestBody.analysis)
+          ? requestBody.analysis
+          : await analyzeAffiliateInput(requestBody);
         if (!analysis.price) {
           throw new Error(
             "Could not extract a live Amazon price. Pinterest product tags need price metadata, so publishing was blocked.",

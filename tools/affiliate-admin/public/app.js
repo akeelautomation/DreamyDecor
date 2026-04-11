@@ -15,10 +15,20 @@ const els = {
   previewImageCount: document.querySelector("#previewImageCount"),
   previewMetaDescription: document.querySelector("#previewMetaDescription"),
   previewOgTitle: document.querySelector("#previewOgTitle"),
-  previewBullets: document.querySelector("#previewBullets"),
+  previewReview: document.querySelector("#previewReview"),
 };
 
 let lastAnalysis = null;
+
+const REVIEW_FIELDS = [
+  { key: "whoItsBestFor", label: "Who It's Best For", type: "text" },
+  { key: "whoShouldSkipIt", label: "Who Should Skip It", type: "text" },
+  { key: "textureMaterialFeel", label: "Texture / Material Feel", type: "text" },
+  { key: "whereItWorksBest", label: "Where It Works Best", type: "text" },
+  { key: "sizeGuidance", label: "Size Guidance", type: "text" },
+  { key: "pros", label: "Pros", type: "list" },
+  { key: "cons", label: "Cons", type: "list" },
+];
 
 async function requestJson(url, options = {}) {
   const response = await fetch(url, {
@@ -61,6 +71,36 @@ function setStatus(message, tone = "") {
   els.status.className = `status ${tone}`.trim();
 }
 
+function renderReviewCards(review) {
+  return REVIEW_FIELDS.map((field) => {
+    const card = document.createElement("article");
+    card.className = "sectionCard";
+
+    const title = document.createElement("h3");
+    title.className = "sectionCard__title";
+    title.textContent = field.label;
+    card.append(title);
+
+    if (field.type === "list") {
+      const list = document.createElement("ul");
+      list.className = "sectionCard__list";
+      for (const itemText of review[field.key] || []) {
+        const item = document.createElement("li");
+        item.textContent = itemText;
+        list.append(item);
+      }
+      card.append(list);
+      return card;
+    }
+
+    const copy = document.createElement("p");
+    copy.className = "sectionCard__copy";
+    copy.textContent = review[field.key] || "";
+    card.append(copy);
+    return card;
+  });
+}
+
 function renderAnalysis(analysis) {
   lastAnalysis = analysis;
   els.emptyState.hidden = true;
@@ -79,13 +119,7 @@ function renderAnalysis(analysis) {
   els.previewImageCount.textContent = `${analysis.imageUrls.length} image${analysis.imageUrls.length === 1 ? "" : "s"}`;
   els.previewMetaDescription.textContent = analysis.metaDescription;
   els.previewOgTitle.textContent = analysis.ogTitle;
-  els.previewBullets.replaceChildren(
-    ...analysis.bullets.map((bullet) => {
-      const item = document.createElement("li");
-      item.textContent = bullet;
-      return item;
-    }),
-  );
+  els.previewReview.replaceChildren(...renderReviewCards(analysis.review));
 }
 
 async function loadSections() {
@@ -107,7 +141,7 @@ async function loadSections() {
 }
 
 async function analyze() {
-  setStatus("Analyzing Amazon product and building preview...");
+  setStatus("Analyzing Amazon product and generating AI notes...");
   const { analysis } = await requestJson("/api/analyze", {
     method: "POST",
     body: JSON.stringify(formPayload()),
@@ -117,10 +151,13 @@ async function analyze() {
 }
 
 async function publish() {
-  setStatus("Writing product page and updating the matching picks page...");
+  setStatus("Writing the AI-based product page and updating the matching picks page...");
   const { analysis, pagePath, sectionPagePath } = await requestJson("/api/publish", {
     method: "POST",
-    body: JSON.stringify(formPayload()),
+    body: JSON.stringify({
+      ...formPayload(),
+      analysis: lastAnalysis,
+    }),
   });
   renderAnalysis(analysis);
   setStatus(`Published ${analysis.pageFile}. Updated ${sectionPagePath} and ${pagePath}.`, "status--ok");

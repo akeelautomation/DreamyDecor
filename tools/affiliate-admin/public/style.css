@@ -266,10 +266,40 @@ textarea {
   word-break: break-word;
 }
 
-.bulletList {
+.sectionGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.sectionCard {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.74);
+  border: 1px solid rgba(53, 39, 28, 0.08);
+}
+
+.sectionCard__title {
+  margin: 0 0 10px;
+  font-family: "Fraunces", serif;
+  font-size: 1.05rem;
+}
+
+.sectionCard__copy {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.sectionCard__list {
   margin: 0;
   padding-left: 18px;
+  color: var(--muted);
   line-height: 1.55;
+}
+
+.sectionCard__list li + li {
+  margin-top: 8px;
 }
 
 @media (max-width: 920px) {

@@ -19,8 +19,8 @@
         <h1>Affiliate Product Publisher</h1>
         <p>
           Paste an Amazon affiliate link and one or more image URLs, choose where it belongs, and the app will
-          generate or update the affiliate page, rich pin metadata, and the card inside the correct paginated picks
-          page.
+          generate AI buying notes, update the affiliate page, write rich pin metadata, and refresh the card inside
+          the correct paginated picks page.
         </p>
       </section>
 
@@ -89,7 +89,7 @@
         <section class="panel panel--preview">
           <div class="panel__head">
             <h2>Preview</h2>
-            <p>Check the generated metadata before writing files.</p>
+            <p>Check the generated metadata and AI buying notes before writing files.</p>
           </div>
 
           <div id="emptyState" class="emptyState">
@@ -129,8 +129,8 @@
                 <p id="previewOgTitle"></p>
               </div>
               <div class="metaBox metaBox--full">
-                <div class="metaBox__label">Product bullets</div>
-                <ul id="previewBullets" class="bulletList"></ul>
+                <div class="metaBox__label">AI Product Notes</div>
+                <div id="previewReview" class="sectionGrid"></div>
               </div>
             </div>
           </div>

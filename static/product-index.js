@@ -1,7 +1,23 @@
 window.DREAMY_DECOR_PRODUCTS = [
   {
-    "title": "PADMA HOUSE Solid Wood Coffee Table with Shelf",
-    "description": "Solid Construction: Crafted of solid wood frame & legs, with a Cherry Brown Tone Birch Wood Veneer Top, poplar wood and MDF. The whole coffee table was sprayed...",
+    "title": "Tiny Land 2-in-1 Foldable Kids Couch with Pockets - Soft Thick Toddler Sofa",
+    "description": "A foldable 2-in-1 kids sofa that converts to a bed, featuring thick foam and clean piping for a modern look in playrooms or bedrooms.",
+    "url": "pick-tiny-land-2-in-1-foldable-kids-couch-with-pockets-soft-thick-toddler-sofa.html",
+    "image": "https://m.media-amazon.com/images/I/81L0FoO6sqL._AC_SX679_.jpg",
+    "addedAt": "2026-04-11T05:53:18.117Z",
+    "room": "Living Room",
+    "rooms": [
+      "Living Room"
+    ],
+    "roomPage": "picks-living.html",
+    "roomPages": [
+      "picks-living.html"
+    ],
+    "order": 1
+  },
+  {
+    "title": "PADMA Solid Wood Coffee Table",
+    "description": "A classic wood coffee table that grounds the seating area and adds an extra shelf for baskets, books, or remotes.",
     "url": "pick-padma-house-solid-wood-coffee-table-with-shelf.html",
     "image": "https://m.media-amazon.com/images/I/91vAI8ealUL._AC_SX679_.jpg",
     "addedAt": "2026-04-03T17:21:24.079Z",
@@ -16,8 +32,8 @@ window.DREAMY_DECOR_PRODUCTS = [
     "order": 1
   },
   {
-    "title": "Crosley Furniture Liam Medium Vinyl Record Storage TV Stand and Entertainment Center",
-    "description": "With its classic walnut finish and tapered legs equipped with adjustable levelers, this record storage media console captures the timeless appeal of mid-century...",
+    "title": "Crosley Liam Record Storage TV Stand",
+    "description": "A media console that gives the TV wall a cleaner look while making room for vinyl, speakers, and everyday storage.",
     "url": "pick-crosley-furniture-liam-medium-vinyl-record-storage-tv-stand-and-entertainment-center.html",
     "image": "https://m.media-amazon.com/images/I/81rmVnHXWiL._AC_SX679_.jpg",
     "addedAt": "2026-04-03T16:37:49.662Z",
@@ -32,8 +48,8 @@ window.DREAMY_DECOR_PRODUCTS = [
     "order": 1
   },
   {
-    "title": "SAFAVIEH Home Collection Inez Natural Wicker Club Chair",
-    "description": "This club chair will add a fresh look to any room",
+    "title": "Crosley Liam Record Storage TV Stand",
+    "description": "A media console that gives the TV wall a cleaner look while making room for vinyl, speakers, and everyday storage.",
     "url": "pick-safavieh-home-collection-inez-natural-wicker-club-chair.html",
     "image": "https://m.media-amazon.com/images/I/91ZJbyh+K7L._AC_SL1500_.jpg",
     "addedAt": "2026-04-01T18:15:29.754Z",
@@ -674,8 +690,8 @@ window.DREAMY_DECOR_PRODUCTS = [
     "order": 1
   },
   {
-    "title": "YUSOKI Sherpa Throw Blanket-3D Stylish Design Super Soft Fuzzy Cozy Warm Blanket Thick Plush Fluffy Furry Blankets for Teen Girls Women Couch Bed Sofa Chair Men Boys Gift(Tan",
-    "description": "PACKAGE INCLUDED:1 piece 50\"*65\"blanket without pillows!",
+    "title": "YUSOKI Sherpa Throw Blanket",
+    "description": "A plush throw blanket that softens the bed or reading chair while adding an easy extra layer for cooler nights.",
     "url": "pick-yusoki-sherpa-throw-blanket-3d-stylish-design-super-soft-fuzzy-cozy-warm-blanket-thick-plush-fluffy-furry-blankets-for-teen-girls-women-couch-bed-sofa-chair-men-boys-gift-tan.html",
     "image": "https://m.media-amazon.com/images/I/818BRJgKL5L._AC_SY300_SX300_QL70_FMwebp_.jpg",
     "addedAt": "2026-04-03T17:21:44.379Z",
@@ -690,8 +706,8 @@ window.DREAMY_DECOR_PRODUCTS = [
     "order": 2
   },
   {
-    "title": "GINAMUSE Chunky Knit Blanket Super Soft Cable Fluffy Microfiber Cozy Warm Winter Blankets for Couch Sofa Bed Twin Size 60\"X80\" Olive Green",
-    "description": "The luxurious feel of our cable pattern blanket, crafted from premium microfiber. This ultra-soft and plush throw offers exceptional warmth, ensuring you stay cozy...",
+    "title": "GINAMUSE Chunky Knit Throw Blanket",
+    "description": "A chunky knit throw that adds soft texture at the end of the bed or across a sofa without feeling flat.",
     "url": "pick-ginamuse-chunky-knit-blanket-super-soft-cable-fluffy-microfiber-cozy-warm-winter-blankets-for-couch-sofa-bed-twin-size-60-x80-olive-green.html",
     "image": "https://m.media-amazon.com/images/I/91d8qyRJUjL._AC_SL1500_.jpg",
     "addedAt": "2026-04-03T17:14:42.461Z",
@@ -706,8 +722,8 @@ window.DREAMY_DECOR_PRODUCTS = [
     "order": 2
   },
   {
-    "title": "Achart Macrame Wall Hanging Large- Boho Wall Decor- large wall art- Wall Decor Living Room- Macrame Tapestry Boho Decor for Bedroom (Triangle)",
-    "description": "Large Size: Approximately 43\" W x 32\" H.",
+    "title": "Achart Large Macrame Wall Hanging",
+    "description": "A large macrame hanging that fills a blank wall with texture and softness when framed art would feel too hard or busy.",
     "url": "pick-achart-macrame-wall-hanging-large-boho-wall-decor-large-wall-art-wall-decor-living-room-macrame-tapestry-boho-decor-for-bedroom-triangle.html",
     "image": "https://m.media-amazon.com/images/I/81eB9kK1fxL._AC_SX679_.jpg",
     "addedAt": "2026-04-03T16:58:12.345Z",
@@ -722,8 +738,8 @@ window.DREAMY_DECOR_PRODUCTS = [
     "order": 2
   },
   {
-    "title": "Amazon Basics Rectangular Wall Mirror",
-    "description": "A well-scaled mirror that bounces light around the room and gives the wall a cleaner focal point.",
+    "title": "Achart Large Macrame Wall Hanging",
+    "description": "A large macrame hanging that fills a blank wall with texture and softness when framed art would feel too hard or busy.",
     "url": "pick-amazon-basics-rectangular-wall-mount-mirror-for-bedroom.html",
     "image": "https://m.media-amazon.com/images/I/71Ayp5p6oDL._AC_SL1500_.jpg",
     "addedAt": "2026-03-14T20:47:44.539Z",
@@ -1218,8 +1234,8 @@ window.DREAMY_DECOR_PRODUCTS = [
     "order": 3
   },
   {
-    "title": "Chouhan Rugs 2 Set of Indian Kilim Cushion Cover 18X18 Pillows Boho Ethnic Shams Jute Pillow Cases Rug Boho Shams (Pattern 24)",
-    "description": "A practical chouhan rugs 2 set of indian kilim cushion cover 18x18 pillows boho ethnic shams jute pillow cases rug boho shams (pattern 24) pick for updated spaces and cleaner styling decisions.",
+    "title": "Chouhan Kilim Pillow Covers, Set of 2",
+    "description": "A patterned pillow-cover set that adds warm color and collected texture to a sofa, chair, or bed.",
     "url": "pick-chouhan-rugs-2-set-of-indian-kilim-cushion-cover-18x18-pillows-boho-ethnic-shams-jute-pillow-cases-rug-boho-shams-pattern-24.html",
     "image": "https://m.media-amazon.com/images/I/514fEMfp-aL._AC_SX679_.jpg",
     "addedAt": "2026-04-03T17:22:05.725Z",
@@ -1234,8 +1250,8 @@ window.DREAMY_DECOR_PRODUCTS = [
     "order": 4
   },
   {
-    "title": "OPPODREAM Vintage Green Area Rugs 8x10",
-    "description": "Use 13 oz/yd2 faux wool as rug's surface, creat the best balance between softness and thickness.----Most products only have 11 oz/yd2 surface or less",
+    "title": "OPPODREAM Vintage Green Washable Rug",
+    "description": "A vintage-style area rug that brings softer color, pattern, and definition to open floor space.",
     "url": "pick-oppodream-vintage-green-area-rugs-8x10.html",
     "image": "https://m.media-amazon.com/images/I/91CW1qYvshL._AC_SX679_.jpg",
     "addedAt": "2026-04-03T17:19:46.063Z",
@@ -1251,7 +1267,7 @@ window.DREAMY_DECOR_PRODUCTS = [
   },
   {
     "title": "keysays Cordless Table Lamp",
-    "description": "This cordless table lamp offers 3 color temperatures (Warm / Neutral / Cool) with smooth stepless dimming (10%-100%) to match your needs. The memory function...",
+    "description": "A rechargeable table lamp that adds flexible ambient light wherever a cord would look awkward or limiting.",
     "url": "pick-keysays-cordless-table-lamp.html",
     "image": "https://m.media-amazon.com/images/I/51Z0uN8wV1L._AC_SX679_.jpg",
     "addedAt": "2026-04-03T17:19:23.395Z",
@@ -1266,8 +1282,8 @@ window.DREAMY_DECOR_PRODUCTS = [
     "order": 4
   },
   {
-    "title": "XKZG Storage Bench Wooden Shoe Rack Bench Rustic Solid Wood Entryway Bench (Brown",
-    "description": "Product Size: 23.6\"W x 11.8\"D x 16.5\"H; Load Capacity: 550 lbs",
+    "title": "XKZG Wooden Shoe Bench",
+    "description": "A compact entry bench that gives you a place to sit, stash shoes, and make the front door area feel more finished.",
     "url": "pick-xkzg-storage-bench-wooden-shoe-rack-bench-rustic-solid-wood-entryway-bench-brown.html",
     "image": "https://m.media-amazon.com/images/I/711cSMEyraL._AC_SX679_.jpg",
     "addedAt": "2026-04-03T17:18:09.199Z",
@@ -1282,8 +1298,8 @@ window.DREAMY_DECOR_PRODUCTS = [
     "order": 4
   },
   {
-    "title": "PFQCGU Swing Arm Wall Sconces",
-    "description": "Designed with an extension arm, with a USB port to charge the phone, and the dimmer can adjust the brightness according to your needs. The dimmer can only be used...",
+    "title": "PFQCGU Swing-Arm Wall Sconce",
+    "description": "A plug-in wall sconce that frees up tabletop space while adding focused light beside the bed, desk, or reading chair.",
     "url": "pick-pfqcgu-swing-arm-wall-sconces.html",
     "image": "https://m.media-amazon.com/images/I/61L4Z18ZsTL._AC_SL1500_.jpg",
     "addedAt": "2026-04-03T17:17:43.696Z",
@@ -1298,8 +1314,8 @@ window.DREAMY_DECOR_PRODUCTS = [
     "order": 4
   },
   {
-    "title": "Achillea Reversible Paisley Pashmina Rave Scarf - Exotic Indian Shawls and Wraps for Evening Dresses",
-    "description": "A practical achillea reversible paisley pashmina rave scarf - exotic indian shawls and wraps for evening dresses pick for updated spaces and cleaner styling decisions.",
+    "title": "Achillea Reversible Paisley Wrap",
+    "description": "A reversible paisley wrap that can work as a lightweight throw, textile accent, or extra layer of color on a chair or bench.",
     "url": "pick-achillea-reversible-paisley-pashmina-rave-scarf-exotic-indian-shawls-and-wraps-for-evening-dresses.html",
     "image": "https://m.media-amazon.com/images/I/91ThT+APXLL._AC_SX679_.jpg",
     "addedAt": "2026-04-03T17:16:33.595Z",
@@ -1314,8 +1330,8 @@ window.DREAMY_DECOR_PRODUCTS = [
     "order": 4
   },
   {
-    "title": "PHPH Wood Floating Shelves for Wall",
-    "description": "Real Wood Floating Shelves: Crafted from solid wood for a durable and sturdy design. PHPH wood floating shelves with natural wood grain give a rustic feel to any...",
+    "title": "PHPH Solid Wood Floating Shelves",
+    "description": "A set of wood floating shelves that adds display space while keeping the floor plan open.",
     "url": "pick-phph-wood-floating-shelves-for-wall.html",
     "image": "https://m.media-amazon.com/images/I/81n92CegwWL._AC_SX679_.jpg",
     "addedAt": "2026-04-03T17:12:38.654Z",
@@ -1330,8 +1346,8 @@ window.DREAMY_DECOR_PRODUCTS = [
     "order": 4
   },
   {
-    "title": "Fun Memories 48-inch Floating Shelves for Wall",
-    "description": "The timeless beauty of our solid pine wood shelves. Crafted with care, our shelves are painstakingly made by hand using carefully chosen wood pieces. The result is...",
+    "title": "Fun Memories Extra-Deep Floating Shelf",
+    "description": "A long floating shelf that gives you room for books, frames, and decor pieces that need more than a narrow ledge.",
     "url": "pick-fun-memories-48-inch-floating-shelves-for-wall.html",
     "image": "https://m.media-amazon.com/images/I/71Q2cm1iM7L._AC_SX679_.jpg",
     "addedAt": "2026-04-03T16:59:14.474Z",
@@ -1346,8 +1362,8 @@ window.DREAMY_DECOR_PRODUCTS = [
     "order": 4
   },
   {
-    "title": "EVERGRACEHOME Chunky Chenille Knit Throw Blanket for Couch",
-    "description": "ELEGANT MOSS STITCH Featuring a beautifully sculpted moss stitch knit, this throw blends dimensional texture with elevated design-perfect for layering over your...",
+    "title": "EVERGRACEHOME Chenille Knit Throw",
+    "description": "A textured chenille throw that adds softness, weight, and a finished layer to a sofa, chair, or bed.",
     "url": "pick-evergracehome-chunky-chenille-knit-throw-blanket-for-couch.html",
     "image": "https://m.media-amazon.com/images/I/814B4YFYumL._AC_SX679_.jpg",
     "addedAt": "2026-04-03T16:37:20.029Z",
@@ -1362,8 +1378,8 @@ window.DREAMY_DECOR_PRODUCTS = [
     "order": 4
   },
   {
-    "title": "HARRITPURE 76\"x34\" Arched Full Length Mirror",
-    "description": "This arched full length mirror adds visual depth and brightness to any space, making your bedroom or living area appear more open and stylish. A perfect...",
+    "title": "HARRITPURE Arched Full-Length Mirror",
+    "description": "A large arched mirror that opens up the room visually and gives you a full-length reflection without adding visual clutter.",
     "url": "pick-harritpure-76-x34-arched-full-length-mirror.html",
     "image": "https://m.media-amazon.com/images/I/81sd2EmqsPL._AC_SX679_.jpg",
     "addedAt": "2026-04-03T16:36:47.766Z",
@@ -1378,8 +1394,8 @@ window.DREAMY_DECOR_PRODUCTS = [
     "order": 4
   },
   {
-    "title": "Pipishell 3 Tier Mesh Utility Cart",
-    "description": "This rolling cart is 13.1\"D x16.45\"W x 33.25\"H. Please confirm the product size before purchasing. The rolling utility cart can be used as a tool cart, service...",
+    "title": "HARRITPURE Arched Full-Length Mirror",
+    "description": "A large arched mirror that opens up the room visually and gives you a full-length reflection without adding visual clutter.",
     "url": "pick-pipishell-3-tier-mesh-utility-cart.html",
     "image": "https://m.media-amazon.com/images/I/51+fPSc2+KL._AC_SL1500_.jpg",
     "addedAt": "2026-04-01T18:03:13.403Z",

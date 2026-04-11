@@ -734,6 +734,38 @@ body{
   line-height:1.45;
 }
 .pickDetail__bullets li{margin:6px 0}
+.pickDetail__notes{
+  margin-top:12px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+  gap:10px;
+}
+.pickDetail__section{
+  border:1px solid rgba(20,18,26,.10);
+  border-radius:18px;
+  background:rgba(255,255,255,.78);
+  padding:14px;
+}
+.pickDetail__sectionTitle{
+  margin:0 0 8px;
+  font-family:var(--display);
+  font-size:18px;
+  letter-spacing:-.01em;
+}
+.pickDetail__sectionCopy{
+  margin:0;
+  color:rgba(20,18,26,.72);
+  font-size:13px;
+  line-height:1.55;
+}
+.pickDetail__list{
+  margin:0;
+  padding-left:18px;
+  color:rgba(20,18,26,.72);
+  font-size:13px;
+  line-height:1.55;
+}
+.pickDetail__list li + li{margin-top:6px}
 
 .postGrid{
   margin-top:12px;

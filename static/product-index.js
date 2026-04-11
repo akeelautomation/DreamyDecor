@@ -1,5 +1,37 @@
 window.DREAMY_DECOR_PRODUCTS = [
   {
+    "title": "DUMOS 108\" Boneless Couch",
+    "description": "A spacious, no-assembly sectional with deep seats and washable corduroy upholstery for relaxed lounging.",
+    "url": "pick-dumos-108-boneless-couch.html",
+    "image": "https://m.media-amazon.com/images/I/71FXbV5iVCL._AC_SL1500_.jpg",
+    "addedAt": "2026-04-11T22:33:33.440Z",
+    "room": "Living Room",
+    "rooms": [
+      "Living Room"
+    ],
+    "roomPage": "picks-living.html",
+    "roomPages": [
+      "picks-living.html"
+    ],
+    "order": 1
+  },
+  {
+    "title": "GRUSIGN Cloud Sectional Boneless Couches for Living Room",
+    "description": "A deep-seated, modular sectional with memory foam comfort and washable covers, designed for easy setup and flexible living room layouts.",
+    "url": "pick-grusign-cloud-sectional-boneless-couches-for-living-room.html",
+    "image": "https://m.media-amazon.com/images/I/81OIb14t8mL._AC_SL1500_.jpg",
+    "addedAt": "2026-04-11T22:32:35.709Z",
+    "room": "Living Room",
+    "rooms": [
+      "Living Room"
+    ],
+    "roomPage": "picks-living.html",
+    "roomPages": [
+      "picks-living.html"
+    ],
+    "order": 1
+  },
+  {
     "title": "Welnow Lazy Chair with Ottoman",
     "description": "A cozy, modern accent chair with ottoman and side pocket, designed for relaxed lounging in compact spaces.",
     "url": "pick-welnow-lazy-chair-with-ottoman.html",

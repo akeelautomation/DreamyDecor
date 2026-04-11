@@ -738,6 +738,22 @@ window.DREAMY_DECOR_PRODUCTS = [
     "order": 1
   },
   {
+    "title": "OLIXIS Comfy Accent Chair for Living Room Bedroom and Waiting Room",
+    "description": "A sleek mid-century accent chair with plush cushioning and sturdy wood legs, designed for relaxed lounging in living rooms or bedrooms.",
+    "url": "pick-olixis-comfy-accent-chair-for-living-room-bedroom-and-waiting-room.html",
+    "image": "https://m.media-amazon.com/images/I/81SmnO-WAfL._AC_SX569_.jpg",
+    "addedAt": "2026-04-11T22:36:22.821Z",
+    "room": "Bedroom",
+    "rooms": [
+      "Bedroom"
+    ],
+    "roomPage": "picks-bedroom.html",
+    "roomPages": [
+      "picks-bedroom.html"
+    ],
+    "order": 2
+  },
+  {
     "title": "Aodenge Plush Faux Fur Bean Bag Chairs",
     "description": "Sink into plush faux fur comfort with memory foam support in a chair-shaped bean bag that cradles your back and arms.",
     "url": "pick-aodenge-plush-faux-fur-bean-bag-chairs.html",

@@ -1,5 +1,133 @@
 window.DREAMY_DECOR_PRODUCTS = [
   {
+    "title": "ivoros 50-inch Chaise Lounge Chair Indoor",
+    "description": "Oversized corduroy chaise lounge with deep seat comfort and no assembly required. Ready to relax in minutes with plush, supportive cushioning.",
+    "url": "pick-ivoros-50-inch-chaise-lounge-chair-indoor.html",
+    "image": "https://m.media-amazon.com/images/I/71ReeUUxG+L._AC_SL1500_.jpg",
+    "addedAt": "2026-05-05T22:17:45.542Z",
+    "room": "Living Room",
+    "rooms": [
+      "Living Room"
+    ],
+    "roomPage": "picks-living.html",
+    "roomPages": [
+      "picks-living.html"
+    ],
+    "order": 1
+  },
+  {
+    "title": "Amsleekey 64\" Chaise Lounge Chair Indoor",
+    "description": "Amsleekey's 64\" chaise lounge blends wood-frame durability with practical features like cup holders, storage pockets, and adjustable legs for personalized comfort.",
+    "url": "pick-amsleekey-64-chaise-lounge-chair-indoor.html",
+    "image": "https://m.media-amazon.com/images/I/813Jzt3bSuL._AC_SL1500_.jpg",
+    "addedAt": "2026-05-05T22:17:16.130Z",
+    "room": "Living Room",
+    "rooms": [
+      "Living Room"
+    ],
+    "roomPage": "picks-living.html",
+    "roomPages": [
+      "picks-living.html"
+    ],
+    "order": 1
+  },
+  {
+    "title": "choairy Oversized Accent Chair",
+    "description": "A deep, cloud-soft chenille chair with a supportive lumbar pillow and sturdy wood frame for relaxed lounging.",
+    "url": "pick-choairy-oversized-accent-chair.html",
+    "image": "https://m.media-amazon.com/images/I/81xD51vBcwL._AC_SL1500_.jpg",
+    "addedAt": "2026-05-05T22:16:50.351Z",
+    "room": "Living Room",
+    "rooms": [
+      "Living Room"
+    ],
+    "roomPage": "picks-living.html",
+    "roomPages": [
+      "picks-living.html"
+    ],
+    "order": 1
+  },
+  {
+    "title": "VINGLI Linen Fabric Accent Chairs Set of 2",
+    "description": "VINGLI's linen accent chairs offer modern style and comfort in a space-saving set of two. Upholstered in neutral beige, they blend well with contemporary decor.",
+    "url": "pick-vingli-linen-fabric-accent-chairs-set-of-2.html",
+    "image": "https://m.media-amazon.com/images/I/714ARQbM6eL._AC_SL1500_.jpg",
+    "addedAt": "2026-05-05T22:14:58.095Z",
+    "room": "Living Room",
+    "rooms": [
+      "Living Room"
+    ],
+    "roomPage": "picks-living.html",
+    "roomPages": [
+      "picks-living.html"
+    ],
+    "order": 1
+  },
+  {
+    "title": "MAXYOYO Modern Accent Chair",
+    "description": "A minimalist beige accent chair with tufted upholstery, wooden armrests, and a sturdy metal frame designed for relaxed seating in living spaces.",
+    "url": "pick-maxyoyo-modern-accent-chair.html",
+    "image": "https://m.media-amazon.com/images/I/71XATi8y8kL._AC_SL1500_.jpg",
+    "addedAt": "2026-05-05T22:14:37.655Z",
+    "room": "Living Room",
+    "rooms": [
+      "Living Room"
+    ],
+    "roomPage": "picks-living.html",
+    "roomPages": [
+      "picks-living.html"
+    ],
+    "order": 1
+  },
+  {
+    "title": "Sweetcrispy Massage Recliner Chair for Adults",
+    "description": "Sweetcrispy's beige fabric recliner offers adjustable positioning from upright to flat, with built-in lumbar massage and vibration for home relaxation. It's a...",
+    "url": "pick-sweetcrispy-massage-recliner-chair-for-adults.html",
+    "image": "https://m.media-amazon.com/images/I/61jRwA9n1DL._AC_SL1500_.jpg",
+    "addedAt": "2026-05-05T22:14:18.398Z",
+    "room": "Living Room",
+    "rooms": [
+      "Living Room"
+    ],
+    "roomPage": "picks-living.html",
+    "roomPages": [
+      "picks-living.html"
+    ],
+    "order": 1
+  },
+  {
+    "title": "STHOUYN Oversized Leather Accent Chair",
+    "description": "A roomy, supportive accent chair with a high back and solid wood frame, offering comfort and mid-century style for daily use.",
+    "url": "pick-sthouyn-oversized-leather-accent-chair.html",
+    "image": "https://m.media-amazon.com/images/I/81RPFASWjgL._AC_SL1500_.jpg",
+    "addedAt": "2026-05-05T22:13:30.683Z",
+    "room": "Living Room",
+    "rooms": [
+      "Living Room"
+    ],
+    "roomPage": "picks-living.html",
+    "roomPages": [
+      "picks-living.html"
+    ],
+    "order": 1
+  },
+  {
+    "title": "STHOUYN Electric Recliner Sofa Couch",
+    "description": "STHOUYN's electric recliner sofa offers smooth power adjustments and chenille comfort for relaxed living. Side pockets keep essentials close at hand.",
+    "url": "pick-sthouyn-electric-recliner-sofa-couch.html",
+    "image": "https://m.media-amazon.com/images/I/91JNesJfGrL._AC_SL1500_.jpg",
+    "addedAt": "2026-05-05T22:13:03.258Z",
+    "room": "Living Room",
+    "rooms": [
+      "Living Room"
+    ],
+    "roomPage": "picks-living.html",
+    "roomPages": [
+      "picks-living.html"
+    ],
+    "order": 1
+  },
+  {
     "title": "YUFAM Mid-Century Side Table",
     "description": "The smaller footprint works well next to sofas, lounge chairs, or beds where space is limited.",
     "url": "pick-yufam-side-table.html",
@@ -788,6 +916,86 @@ window.DREAMY_DECOR_PRODUCTS = [
     "order": 1
   },
   {
+    "title": "CANMOV Swivel Accent Chair with Armrest",
+    "description": "A plush, swiveling accent chair with soft sherpa fabric and supportive foam cushioning for relaxed seating.",
+    "url": "pick-canmov-swivel-accent-chair-with-armrest.html",
+    "image": "https://m.media-amazon.com/images/I/71oheTF8V9L._AC_SL1500_.jpg",
+    "addedAt": "2026-05-05T22:15:31.393Z",
+    "room": "Bedroom",
+    "rooms": [
+      "Bedroom"
+    ],
+    "roomPage": "picks-bedroom.html",
+    "roomPages": [
+      "picks-bedroom.html"
+    ],
+    "order": 2
+  },
+  {
+    "title": "JONATHAN Y 20.5\" Brown Rustic Antler Table Lamp for Bedroom Farmhouse Decor",
+    "description": "A rustic antler base with a soft gray linen shade brings lodge charm to bedside tables or desks. LED bulbs included for instant, warm illumination.",
+    "url": "pick-jonathan-y-20-5-brown-rustic-antler-table-lamp-for-bedroom-farmhouse-decor.html",
+    "image": "https://m.media-amazon.com/images/I/81TQymijBKL._AC_SL1500_.jpg",
+    "addedAt": "2026-05-05T22:09:57.457Z",
+    "room": "Bedroom",
+    "rooms": [
+      "Bedroom"
+    ],
+    "roomPage": "picks-bedroom.html",
+    "roomPages": [
+      "picks-bedroom.html"
+    ],
+    "order": 2
+  },
+  {
+    "title": "WINKAILIN Minimalist White and Gold Textured Canvas Wall Art Modern Abstract Line Artwork for Living Room Bedroom Office Neutral Home Decor 40x88-inch",
+    "description": "WINKAILIN's 40x88-inch canvas art features a minimalist white and gold textured design, offering a modern abstract line artwork that adds subtle elegance to...",
+    "url": "pick-winkailin-minimalist-white-and-gold-textured-canvas-wall-art-modern-abstract-line-artwork-for-living-room-bedroom-office-neutral-home-decor-40x88-inch.html",
+    "image": "https://m.media-amazon.com/images/I/712UaEPKvyL._AC_SL1500_.jpg",
+    "addedAt": "2026-05-05T22:05:35.687Z",
+    "room": "Bedroom",
+    "rooms": [
+      "Bedroom"
+    ],
+    "roomPage": "picks-bedroom.html",
+    "roomPages": [
+      "picks-bedroom.html"
+    ],
+    "order": 2
+  },
+  {
+    "title": "mirolam Stuffed Animal Storage Hammock or Net Corner - Large Toy Hammock Net for Stuffed Animals Room Decor - Cute Stuff Animal Organizer Plush Holder - Kids Baby Nursery Essentials Wall Bedroom Home Decor",
+    "description": "A large cotton macrame hammock that holds stuffed animals while adding boho charm to walls. Soft, eco-friendly, and easy to install with included hardware.",
+    "url": "pick-mirolam-stuffed-animal-storage-hammock-or-net-corner-large-toy-hammock-net-for-stuffed-animals-room-decor-cute-stuff-animal-organizer-plush-holder-kids-baby-nursery-essentials-wall-bedroom-home-decor.html",
+    "image": "https://m.media-amazon.com/images/I/61752JLF7qL._AC_SL1200_.jpg",
+    "addedAt": "2026-05-05T22:05:07.604Z",
+    "room": "Bedroom",
+    "rooms": [
+      "Bedroom"
+    ],
+    "roomPage": "picks-bedroom.html",
+    "roomPages": [
+      "picks-bedroom.html"
+    ],
+    "order": 2
+  },
+  {
+    "title": "Cubes Land Paper Rope Scalloped Edge Toilet Paper Storage Basket",
+    "description": "A handcrafted paper rope basket with scalloped edges and wooden handles adds natural charm to bathrooms and bedrooms while storing toilet paper or small essentials.",
+    "url": "pick-cubes-land-paper-rope-scalloped-edge-toilet-paper-storage-basket.html",
+    "image": "https://m.media-amazon.com/images/I/71CARg-HKRL._AC_SX679_.jpg",
+    "addedAt": "2026-05-05T22:03:38.489Z",
+    "room": "Bedroom",
+    "rooms": [
+      "Bedroom"
+    ],
+    "roomPage": "picks-bedroom.html",
+    "roomPages": [
+      "picks-bedroom.html"
+    ],
+    "order": 2
+  },
+  {
     "title": "YUSOKI Sherpa Throw Blanket",
     "description": "The oversized feel works well folded at the foot of the bed or draped over a chair.",
     "url": "pick-yusoki-sherpa-throw-blanket-3d-stylish-design-super-soft-fuzzy-cozy-warm-blanket-thick-plush-fluffy-furry-blankets-for-teen-girls-women-couch-bed-sofa-chair-men-boys-gift-tan.html",
@@ -1188,6 +1396,38 @@ window.DREAMY_DECOR_PRODUCTS = [
     "order": 2
   },
   {
+    "title": "Sunlinua 34.25\" L Outdoor Water Fountain with 3 Tiers Large Cascading Realistic Tree Trunk Waterfall Fountains with LED Lights Outdoor Water Fountain for Garden Patio Backyard Porch Home Decor",
+    "description": "A 34.25\" tiered fountain with LED lights and adjustable water flow creates a soothing outdoor centerpiece. Realistic tree-trunk design adds natural charm to patios...",
+    "url": "pick-sunlinua-34-25-l-outdoor-water-fountain-with-3-tiers-large-cascading-realistic-tree-trunk-waterfall-fountains-with-led-lights-outdoor-water-fountain-for-garden-patio-backyard-porch-home-decor.html",
+    "image": "https://m.media-amazon.com/images/I/81rdaFSNi5L._AC_SL1500_.jpg",
+    "addedAt": "2026-05-05T22:08:38.885Z",
+    "room": "Outdoor",
+    "rooms": [
+      "Outdoor"
+    ],
+    "roomPage": "picks-outdoor.html",
+    "roomPages": [
+      "picks-outdoor.html"
+    ],
+    "order": 3
+  },
+  {
+    "title": "Liora Manne Ravella Indoor Outdoor Rug - Nautical Rug",
+    "description": "A nautical-themed indoor-outdoor rug with sea life motifs, offering soft comfort and UV-stabilized durability for high-traffic areas.",
+    "url": "pick-liora-manne-ravella-indoor-outdoor-rug-nautical-rug.html",
+    "image": "https://m.media-amazon.com/images/I/91bq3peKvFL._AC_SL1500_.jpg",
+    "addedAt": "2026-05-05T22:06:29.804Z",
+    "room": "Outdoor",
+    "rooms": [
+      "Outdoor"
+    ],
+    "roomPage": "picks-outdoor.html",
+    "roomPages": [
+      "picks-outdoor.html"
+    ],
+    "order": 3
+  },
+  {
     "title": "Wisteria Lane 4-Piece Patio Set",
     "description": "4 coordinated pieces give you a ready-made seating zone instead of assembling one item at a time.",
     "url": "pick-wisteria-lane-patio-set.html",
@@ -1362,6 +1602,102 @@ window.DREAMY_DECOR_PRODUCTS = [
       "picks-outdoor.html"
     ],
     "order": 3
+  },
+  {
+    "title": "Kelly Miller Large Gold Full Length Mirror for Wall",
+    "description": "A large gold-framed full-length mirror with beveled edges and scalloped corners adds elegant depth to any room. Its sturdy build and easy French cleat hanging make...",
+    "url": "pick-kelly-miller-large-gold-full-length-mirror-for-wall.html",
+    "image": "https://m.media-amazon.com/images/I/81JaXrRsC3L._AC_SL1500_.jpg",
+    "addedAt": "2026-05-05T22:09:27.138Z",
+    "room": "Small Wins",
+    "rooms": [
+      "Small Wins"
+    ],
+    "roomPage": "picks-small-wins.html",
+    "roomPages": [
+      "picks-small-wins.html"
+    ],
+    "order": 4
+  },
+  {
+    "title": "Troartos Large Vertical 3D Textured LED Wall Decor for Living Room",
+    "description": "A vertical LED wall art with textured sandstone finish and warm lighting, designed to add depth and calm to modern spaces. At 28x56 inches, it serves as a...",
+    "url": "pick-troartos-large-vertical-3d-textured-led-wall-decor-for-living-room.html",
+    "image": "https://m.media-amazon.com/images/I/81o1cOTmKCL._AC_SL1500_.jpg",
+    "addedAt": "2026-05-05T22:08:58.903Z",
+    "room": "Small Wins",
+    "rooms": [
+      "Small Wins"
+    ],
+    "roomPage": "picks-small-wins.html",
+    "roomPages": [
+      "picks-small-wins.html"
+    ],
+    "order": 4
+  },
+  {
+    "title": "Troartos Large 3D Textured Wall Art Decor for Living Room",
+    "description": "A 3-piece set of large, textured wall art in neutral black, beige, and brown tones, each panel measuring 24x36 inches with carved, sculptural detailing for a...",
+    "url": "pick-troartos-large-3d-textured-wall-art-decor-for-living-room.html",
+    "image": "https://m.media-amazon.com/images/I/91jnCW0qFLL._AC_SL1500_.jpg",
+    "addedAt": "2026-05-05T22:08:18.089Z",
+    "room": "Small Wins",
+    "rooms": [
+      "Small Wins"
+    ],
+    "roomPage": "picks-small-wins.html",
+    "roomPages": [
+      "picks-small-wins.html"
+    ],
+    "order": 4
+  },
+  {
+    "title": "Jocoevol Mesh Panel Waterfall Fountain",
+    "description": "A tall, illuminated mesh waterfall fountain that blends modern design with calming water sounds for indoor or outdoor spaces. Features adjustable lighting and a...",
+    "url": "pick-jocoevol-mesh-panel-waterfall-fountain.html",
+    "image": "https://m.media-amazon.com/images/I/817qLP8XNkL._AC_SL1500_.jpg",
+    "addedAt": "2026-05-05T22:06:58.489Z",
+    "room": "Small Wins",
+    "rooms": [
+      "Small Wins"
+    ],
+    "roomPage": "picks-small-wins.html",
+    "roomPages": [
+      "picks-small-wins.html"
+    ],
+    "order": 4
+  },
+  {
+    "title": "COOVA Faux Fur Throw Blanket for Couch",
+    "description": "COOVA's faux fur throw offers plush, bubble-textured comfort in a 50x60 inch size, blending softness with subtle style for everyday coziness.",
+    "url": "pick-coova-faux-fur-throw-blanket-for-couch.html",
+    "image": "https://m.media-amazon.com/images/I/813y8IR4I2L._AC_SX679_.jpg",
+    "addedAt": "2026-05-05T22:04:31.844Z",
+    "room": "Small Wins",
+    "rooms": [
+      "Small Wins"
+    ],
+    "roomPage": "picks-small-wins.html",
+    "roomPages": [
+      "picks-small-wins.html"
+    ],
+    "order": 4
+  },
+  {
+    "title": "GODONLIF Candle Warmer Lamp with Timer Dimmable",
+    "description": "A dimmable, timer-equipped candle warmer lamp that melts wax safely from the top down-no flame, smoke, or soot. Features adjustable height and two bulbs for...",
+    "url": "pick-godonlif-candle-warmer-lamp-with-timer-dimmable.html",
+    "image": "https://m.media-amazon.com/images/I/810vcJJDrkL._AC_SL1500_.jpg",
+    "addedAt": "2026-05-05T22:02:24.821Z",
+    "room": "Small Wins",
+    "rooms": [
+      "Small Wins"
+    ],
+    "roomPage": "picks-small-wins.html",
+    "roomPages": [
+      "picks-small-wins.html"
+    ],
+    "order": 4
   },
   {
     "title": "XKZG Wooden Shoe Bench",

@@ -787,10 +787,10 @@ body{
   display:grid;
   place-items:center;
   overflow:hidden;
-  width:min(124px, 46vw);
+  width:min(112px, 42vw);
   aspect-ratio:9 / 16;
   margin:0 auto 14px;
-  border-radius:16px;
+  border-radius:14px;
   border:1px solid rgba(20,18,26,.10);
   border-bottom:1px solid rgba(20,18,26,.10);
   background:
@@ -806,7 +806,7 @@ body{
   background:rgba(20,18,26,.05);
 }
 .postCard__thumb img[src^="static/favicon"]{
-  padding:24px;
+  padding:22px;
   object-fit:contain;
 }
 .postCard__top{display:flex; justify-content:space-between; gap:10px; align-items:baseline}

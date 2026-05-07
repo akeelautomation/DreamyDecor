@@ -964,7 +964,7 @@ const renderBlogPage = ({ blog, fileName, date }) => {
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600..900&family=Space+Grotesk:wght@400..700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="static/style.css?v=20260507" />
+    <link rel="stylesheet" href="static/style.css?v=2026050702" />
   </head>
   <body>
     <div class="bg" aria-hidden="true"></div>

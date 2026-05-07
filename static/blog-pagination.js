@@ -3,16 +3,16 @@
   const style = document.createElement("style");
   style.textContent = `
     .postCard__thumb{
-      width:min(124px, 46vw);
+      width:min(112px, 42vw);
       aspect-ratio:9 / 16;
       margin:0 auto 14px;
-      border-radius:16px;
+      border-radius:14px;
     }
     .postCard__thumb img{
       object-fit:cover;
     }
     .postCard__thumb img[src^="static/favicon"]{
-      padding:24px;
+      padding:22px;
       object-fit:contain;
     }
   `;

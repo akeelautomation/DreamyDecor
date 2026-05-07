@@ -787,9 +787,15 @@ body{
   display:grid;
   place-items:center;
   overflow:hidden;
+<<<<<<< HEAD
   width:min(124px, 46vw);
   aspect-ratio:9 / 16;
   margin:0 auto 14px;
+=======
+  width:100%;
+  aspect-ratio:16 / 9;
+  margin:0 0 14px;
+>>>>>>> 43a66868bead044227e30bcc0b928e4d1d57327e
   border-radius:16px;
   border:1px solid rgba(20,18,26,.10);
   border-bottom:1px solid rgba(20,18,26,.10);
@@ -806,7 +812,11 @@ body{
   background:rgba(20,18,26,.05);
 }
 .postCard__thumb img[src^="static/favicon"]{
+<<<<<<< HEAD
   padding:24px;
+=======
+  padding:28px;
+>>>>>>> 43a66868bead044227e30bcc0b928e4d1d57327e
   object-fit:contain;
 }
 .postCard__top{display:flex; justify-content:space-between; gap:10px; align-items:baseline}

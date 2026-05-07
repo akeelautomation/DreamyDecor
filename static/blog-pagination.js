@@ -3,16 +3,26 @@
   const style = document.createElement("style");
   style.textContent = `
     .postCard__thumb{
+<<<<<<< HEAD
       width:min(124px, 46vw);
       aspect-ratio:9 / 16;
       margin:0 auto 14px;
+=======
+      width:100%;
+      aspect-ratio:16 / 9;
+      margin:0 0 14px;
+>>>>>>> 43a66868bead044227e30bcc0b928e4d1d57327e
       border-radius:16px;
     }
     .postCard__thumb img{
       object-fit:cover;
     }
     .postCard__thumb img[src^="static/favicon"]{
+<<<<<<< HEAD
       padding:24px;
+=======
+      padding:28px;
+>>>>>>> 43a66868bead044227e30bcc0b928e4d1d57327e
       object-fit:contain;
     }
   `;

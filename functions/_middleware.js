@@ -1,3 +1,5 @@
+const BLOG_IMAGE_HOSTS = ["https://pub-72cdac497dcc43c08cff5703af3d8977.r2.dev"];
+
 function baseCsp({ allowPayPal }) {
   const scriptSrc = ["'self'"];
   const connectSrc = ["'self'"];
@@ -9,6 +11,7 @@ function baseCsp({ allowPayPal }) {
     "blob:",
     "https://m.media-amazon.com",
     "https://images-na.ssl-images-amazon.com",
+    ...BLOG_IMAGE_HOSTS,
   ];
   const styleSrc = ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"];
   const fontSrc = ["'self'", "data:", "https://fonts.gstatic.com"];

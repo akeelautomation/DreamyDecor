@@ -1,5 +1,23 @@
 (function () {
   const POSTS_PER_PAGE = 21;
+  const style = document.createElement("style");
+  style.textContent = `
+    .postCard__thumb{
+      width:min(124px, 46vw);
+      aspect-ratio:9 / 16;
+      margin:0 auto 14px;
+      border-radius:16px;
+    }
+    .postCard__thumb img{
+      object-fit:cover;
+    }
+    .postCard__thumb img[src^="static/favicon"]{
+      padding:24px;
+      object-fit:contain;
+    }
+  `;
+  document.head.append(style);
+
   const grid = document.querySelector(".postGrid");
   const pager = document.querySelector("[data-blog-pager]");
 

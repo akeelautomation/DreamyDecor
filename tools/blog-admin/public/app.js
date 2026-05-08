@@ -1,5 +1,6 @@
 const form = document.querySelector("#uploadForm");
 const imageInput = document.querySelector("#imageInput");
+const keywordInput = document.querySelector("#keywordInput");
 const dropzone = document.querySelector(".dropzone");
 const previewWrap = document.querySelector("#previewWrap");
 const statusEl = document.querySelector("#status");
@@ -54,6 +55,7 @@ form.addEventListener("submit", async (event) => {
   stopRequested = false;
   completed = 0;
   failed = 0;
+  const keywordGuidance = getKeywordGuidance();
   setLoading(true);
   summary.textContent = `Processing 0 of ${queuedFiles.length}. Each image runs one at a time.`;
   summary.classList.remove("empty");
@@ -73,7 +75,7 @@ form.addEventListener("submit", async (event) => {
     setStatus(`Generating ${index + 1} of ${queuedFiles.length}: ${file.name}`, "loading");
 
     try {
-      const result = await generateBlogWithRetry(file, row, index, queuedFiles.length);
+      const result = await generateBlogWithRetry(file, row, index, queuedFiles.length, keywordGuidance);
       if (stopRequested) {
         updateQueueRow(row, {
           state: "error",
@@ -219,9 +221,10 @@ function createQueueRow({ file, index, previewUrl }) {
   return row;
 }
 
-async function generateBlog(file) {
+async function generateBlog(file, keywordGuidance = "") {
   const formData = new FormData();
   formData.append("image", file);
+  formData.append("keywords", keywordGuidance);
   activeController = new AbortController();
 
   try {
@@ -242,7 +245,7 @@ async function generateBlog(file) {
   }
 }
 
-async function generateBlogWithRetry(file, row, index, total) {
+async function generateBlogWithRetry(file, row, index, total, keywordGuidance = "") {
   let lastError = null;
 
   for (let attempt = 1; attempt <= MAX_ITEM_ATTEMPTS; attempt += 1) {
@@ -255,7 +258,7 @@ async function generateBlogWithRetry(file, row, index, total) {
         state: "loading",
         status: `Processing ${index + 1} of ${total} - attempt ${attempt}/${MAX_ITEM_ATTEMPTS}`,
       });
-      return await generateBlog(file);
+      return await generateBlog(file, keywordGuidance);
     } catch (error) {
       if (isAbortError(error)) {
         throw error;
@@ -334,7 +337,7 @@ async function retryRow(row) {
   setStatus(`Retrying: ${file.name}`, "loading");
 
   try {
-    const result = await generateBlogWithRetry(file, row, index, queuedFiles.length);
+    const result = await generateBlogWithRetry(file, row, index, queuedFiles.length, getKeywordGuidance());
     updateQueueRow(row, {
       state: "success",
       status: `${result.wordCount || "1100-1200"} words`,
@@ -363,8 +366,16 @@ function setStatus(message, state) {
 function setLoading(isLoading) {
   submitButton.disabled = isLoading;
   clearButton.disabled = isLoading;
+  keywordInput.disabled = isLoading;
   stopButton.disabled = !isLoading;
   submitButton.textContent = isLoading ? "Batch Running..." : "Start Batch";
+}
+
+function getKeywordGuidance() {
+  return String(keywordInput.value || "")
+    .replace(/\r\n/g, "\n")
+    .trim()
+    .slice(0, 2000);
 }
 
 function sleep(ms) {

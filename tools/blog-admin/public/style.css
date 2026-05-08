@@ -31,7 +31,8 @@ body {
 }
 
 button,
-input {
+input,
+textarea {
   font: inherit;
 }
 
@@ -170,6 +171,51 @@ h1 {
   font-size: 0.76rem;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.keyword-field {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.keyword-field > span:first-child {
+  color: var(--ink);
+  font-family: "Trebuchet MS", Verdana, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.keyword-field textarea {
+  width: 100%;
+  min-height: 132px;
+  resize: vertical;
+  padding: 14px 15px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  color: var(--ink);
+  background: rgba(255, 248, 239, 0.82);
+  line-height: 1.45;
+  outline: none;
+}
+
+.keyword-field textarea:focus {
+  border-color: rgba(255, 90, 61, 0.58);
+  box-shadow: 0 0 0 4px rgba(255, 90, 61, 0.12);
+}
+
+.keyword-field textarea:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.keyword-note {
+  color: var(--muted);
+  font-family: "Trebuchet MS", Verdana, sans-serif;
+  font-size: 0.84rem;
+  line-height: 1.35;
 }
 
 button {

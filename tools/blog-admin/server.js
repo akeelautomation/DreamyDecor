@@ -9,6 +9,7 @@ const TMP_DIR = path.join(ROOT_DIR, ".blog-generator-tmp");
 const GENERATOR_SCRIPT = path.join(ROOT_DIR, "tools", "generate-blog-from-image.js");
 const PORT = Number(process.env.PORT || 3200);
 const MAX_UPLOAD_BYTES = 12 * 1024 * 1024;
+const MAX_KEYWORD_GUIDANCE_LENGTH = 2000;
 const GENERATOR_TIMEOUT_MS = 10 * 60 * 1000;
 
 const MIME_TYPES = {
@@ -52,12 +53,13 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === "POST" && requestUrl.pathname === "/api/generate-blog") {
-      const upload = await readMultipartImage(req);
-      const tempPath = path.join(TMP_DIR, `${Date.now()}-${sanitizeFilename(upload.filename)}`);
-      fs.writeFileSync(tempPath, upload.buffer);
+      const upload = await readMultipartForm(req);
+      const keywordGuidance = normalizeKeywordGuidance(upload.fields.keywords);
+      const tempPath = path.join(TMP_DIR, `${Date.now()}-${sanitizeFilename(upload.image.filename)}`);
+      fs.writeFileSync(tempPath, upload.image.buffer);
 
       try {
-        const result = await runGenerator(tempPath, res);
+        const result = await runGenerator(tempPath, res, keywordGuidance);
         sendJson(res, 200, result);
       } finally {
         fs.rmSync(tempPath, { force: true });
@@ -130,7 +132,7 @@ function readRequestBody(req) {
   });
 }
 
-async function readMultipartImage(req) {
+async function readMultipartForm(req) {
   const contentType = req.headers["content-type"] || "";
   const boundaryMatch = contentType.match(/boundary=(?:"([^"]+)"|([^;]+))/i);
 
@@ -141,6 +143,8 @@ async function readMultipartImage(req) {
   const boundary = Buffer.from(`--${boundaryMatch[1] || boundaryMatch[2]}`);
   const body = await readRequestBody(req);
   const parts = splitMultipart(body, boundary);
+  const fields = {};
+  let image = null;
 
   for (const part of parts) {
     const headerEnd = part.indexOf("\r\n\r\n");
@@ -158,15 +162,24 @@ async function readMultipartImage(req) {
         throw new Error("Please upload an image file.");
       }
 
-      return {
+      image = {
         filename,
         contentType: partContentType,
         buffer: content,
       };
+      continue;
+    }
+
+    if (name && !filename) {
+      fields[name] = content.toString("utf8");
     }
   }
 
-  throw new Error("No image field found in upload.");
+  if (!image) {
+    throw new Error("No image field found in upload.");
+  }
+
+  return { image, fields };
 }
 
 function splitMultipart(body, boundary) {
@@ -202,12 +215,17 @@ function trimMultipartContent(buffer) {
   return buffer.slice(start, end);
 }
 
-function runGenerator(imagePath, res) {
+function runGenerator(imagePath, res, keywordGuidance = "") {
   return new Promise((resolve, reject) => {
     let settled = false;
+    const args = [GENERATOR_SCRIPT, imagePath];
+    if (keywordGuidance) {
+      args.push("--keywords", keywordGuidance);
+    }
+
     const child = execFile(
       process.execPath,
-      [GENERATOR_SCRIPT, imagePath],
+      args,
       {
         cwd: ROOT_DIR,
         timeout: GENERATOR_TIMEOUT_MS,
@@ -257,4 +275,11 @@ function sanitizeFilename(value) {
     .slice(0, 60);
   const ext = parsed.ext.toLowerCase() || ".jpg";
   return `${name || "decor-blog-image"}${ext}`;
+}
+
+function normalizeKeywordGuidance(value) {
+  return String(value || "")
+    .replace(/\r\n/g, "\n")
+    .trim()
+    .slice(0, MAX_KEYWORD_GUIDANCE_LENGTH);
 }

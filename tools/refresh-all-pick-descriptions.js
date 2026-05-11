@@ -1,13 +1,13 @@
 const fs = require("fs");
 const path = require("path");
 const {
-  SITE_URL,
   generateReviewContent,
   getSections,
   renderProductCard,
   renderProductPage,
   replaceOrInsertCard,
 } = require("./affiliate-admin/server");
+const { toPublicUrl } = require("./site-config");
 const { writeProductIndex } = require("./generate-product-index");
 const { writeLatestPicksPage } = require("./generate-latest-picks");
 
@@ -284,7 +284,7 @@ function parsePickFile(fileName, sectionsByUrl, sectionsById, sectionsByLabel, s
     priceLabel: cleanText(priceLabel),
     availability,
     pageFile: fileName,
-    productUrl: `${SITE_URL}/${fileName}`,
+    productUrl: toPublicUrl(fileName),
     metaDescription:
       findMetaContent(html, "name", "description") || cleanText(productJson.description || ""),
     ogTitle: findMetaContent(html, "property", "og:title") || `${cleanText(productJson.name)} | Dreamy Decor`,

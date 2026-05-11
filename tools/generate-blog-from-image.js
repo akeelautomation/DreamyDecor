@@ -1,10 +1,12 @@
 const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
+const { SITE_URL, toPublicUrl } = require("./site-config");
 
 const ROOT_DIR = path.resolve(__dirname, "..");
 const ENV_PATH = path.join(ROOT_DIR, ".env.local");
 const BLOG_INDEX_PATH = path.join(ROOT_DIR, "blog.html");
+const SITEMAP_PATH = path.join(ROOT_DIR, "sitemap.xml");
 const TMP_DIR = path.join(ROOT_DIR, ".blog-generator-tmp");
 const OPENROUTER_THROTTLE_PATH = path.join(TMP_DIR, "openrouter-last-call.json");
 const IMAGE_UPLOAD_CACHE_PATH = path.join(TMP_DIR, "image-upload-cache.json");
@@ -14,6 +16,20 @@ const DEFAULT_OPENROUTER_RETRY_COOLDOWN_MS = 90000;
 const MIN_WORDS = 1100;
 const MAX_WORDS = 1200;
 const MAX_KEYWORD_GUIDANCE_LENGTH = 2000;
+const MIN_DESCRIPTION_LENGTH = 70;
+const MAX_DESCRIPTION_LENGTH = 155;
+const MIN_PARAGRAPH_WORDS = 45;
+const MAX_PARAGRAPH_WORDS = 105;
+const STOCK_FILLER_PHRASES = [
+  ["check", "scale", "before", "you", "shop"].join(" "),
+  ["think", "about", "maintenance", "as", "part", "of", "the", "design"].join(" "),
+  ["use", "repetition", "to", "make", "the", "decision", "look", "deliberate"].join(" "),
+  ["a", "practical", "way", "to", "use", "this", "step"].join(" "),
+];
+const BLOCKED_SLUGS = new Set([
+  ["focused", "room", "decor", "topic"].join("-"),
+  ["real", "lowercase", "kebab", "case", "topic"].join("-"),
+]);
 
 const ALLOWED_TAGS = [
   "living room",
@@ -34,11 +50,20 @@ const ALLOWED_TAGS = [
 const AD_FRIENDLY_CONTENT_RULES = `Ad-network quality rules:
 - Write original, reader-first content with specific decor decisions, tradeoffs, common mistakes, and practical next steps.
 - Keep it family-safe and brand-safe. Avoid adult or sexual content, graphic violence, hate, harassment, weapons, drugs, gambling, politics, medical claims, financial claims, illegal activity, and unsafe instructions.
-- Do not write clickbait, misleading promises, fake expertise, fake personal experience, copied product claims, or thin filler.
+- Do not write clickbait, misleading promises, fake expertise, fake personal experience, copied product claims, generic filler, or paragraphs that could fit any room.
 - Do not keyword-stuff. Use the main decor phrase naturally.
 - Do not mention ads, monetization, AdSense, affiliate programs, or policy compliance in the article.
 - Do not invent exact dimensions, prices, brands, materials, safety claims, or performance claims that are not visible or provided.
+- Do not pad the article to hit word count. If a detail is not useful, choose a more specific detail instead.
 - Make the post useful enough to stand alone without ads: include placement guidance, what to measure or check, when to skip an idea, and how to avoid clutter.`;
+
+const OUTPUT_QUALITY_RULES = `Output quality rules:
+- Every paragraph must be unique, concrete, and tied to the visible room/decor topic.
+- Do not reuse the same paragraph frame across sections.
+- Do not use the blocked stock-filler sentence openings enforced by validation.
+- Avoid vague sentence starts such as "A well-designed room", "The key is", and "This guide walks you through" unless followed by a specific visible detail.
+- Mention only details that are visible in the image or generally safe decor guidance.
+- Slug must be based on the final title, not copied from the schema example.`;
 
 const REQUIRED_ENV = [
   "OPENROUTER_API_KEY",
@@ -108,6 +133,7 @@ const slugify = (value) =>
     .replace(/^-+|-+$/g, "")
     .slice(0, 78);
 
+const escapeRegExp = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const normalizeBaseUrl = (value) => String(value || "").replace(/\/+$/, "");
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -364,6 +390,8 @@ Analyze the decor or room image and choose one genuinely useful article topic ba
 
 ${AD_FRIENDLY_CONTENT_RULES}
 
+${OUTPUT_QUALITY_RULES}
+
 ${buildKeywordInstructions(keywordGuidance)}
 
 Hard rules:
@@ -376,16 +404,17 @@ Hard rules:
 - The title should include the decor topic and the reader benefit.
 - Use one tag from this exact list: ${ALLOWED_TAGS.join(", ")}.
 - Slug must be lowercase kebab-case without the "blog-" prefix.
-- Description must be one sentence under 155 characters.
-- Include 5-7 sections. Each section needs 2 paragraphs.
-- Checklist must contain 5-7 useful action items.
+- Description must be one sentence, ${MIN_DESCRIPTION_LENGTH}-${MAX_DESCRIPTION_LENGTH} characters.
+- Include exactly 6 sections. Each section must have exactly 2 paragraphs.
+- Each intro paragraph and section paragraph should be ${MIN_PARAGRAPH_WORDS}-${MAX_PARAGRAPH_WORDS} words.
+- Checklist must contain exactly 6 useful action items.
 - Do not include image URLs in the JSON.
 
 Image URL: ${imageUrl}
 
 JSON shape:
 {
-  "slug": "real-lowercase-kebab-case-topic",
+  "slug": "focused-room-decor-topic",
   "tag": "one allowed tag",
   "title": "real decor title with a reader benefit",
   "description": "real one-sentence summary under 155 characters",
@@ -403,9 +432,11 @@ JSON shape:
 
 const buildResizePrompt = ({ blog, imageUrl, wordCount, keywordGuidance }) => `Rewrite this Dreamy Decor blog JSON so the article body is ${MIN_WORDS}-${MAX_WORDS} words.
 
-Return one strict JSON object only. Keep the exact same JSON shape. Keep 5-7 sections, exactly 2 paragraphs per section, and 5-7 checklist items. Keep the topic useful and decor-specific. Do not include markdown.
+Return one strict JSON object only. Keep the exact same JSON shape. Keep exactly 6 sections, exactly 2 paragraphs per section, and exactly 6 checklist items. Keep the topic useful and decor-specific. Do not include markdown.
 
 ${AD_FRIENDLY_CONTENT_RULES}
+
+${OUTPUT_QUALITY_RULES}
 
 ${buildKeywordInstructions(keywordGuidance)}
 
@@ -422,6 +453,8 @@ Return strict JSON only. Do not include markdown. Do not explain.
 
 ${AD_FRIENDLY_CONTENT_RULES}
 
+${OUTPUT_QUALITY_RULES}
+
 ${buildKeywordInstructions(keywordGuidance)}
 
 Repair reason: ${reason}
@@ -434,14 +467,14 @@ Requirements:
 - Keep the topic useful, practical, and home decor specific.
 - Include 2 introParagraphs.
 - Include one quickWin.
-- Include 5-7 sections.
+- Include exactly 6 sections.
 - Each section must have a heading and exactly 2 paragraphs.
-- Include 5-7 checklist items.
+- Include exactly 6 checklist items.
 - Do not include image URLs in the JSON.
 
 JSON shape:
 {
-  "slug": "real-lowercase-kebab-case-topic",
+  "slug": "focused-room-decor-topic",
   "tag": "one allowed tag",
   "title": "real decor title with a reader benefit",
   "description": "real one-sentence summary under 155 characters",
@@ -466,6 +499,8 @@ Return strict JSON only. Do not include markdown. Do not explain.
 
 ${AD_FRIENDLY_CONTENT_RULES}
 
+${OUTPUT_QUALITY_RULES}
+
 ${buildKeywordInstructions(keywordGuidance)}
 
 Problem: ${reason}
@@ -477,9 +512,9 @@ Requirements:
 - Preserve the same topic where possible.
 - Include 2 introParagraphs.
 - Include one quickWin.
-- Include 5-7 sections.
+- Include exactly 6 sections.
 - Each section must have a heading and exactly 2 paragraphs.
-- Include 5-7 checklist items.
+- Include exactly 6 checklist items.
 - Keep all content useful, practical, and home decor specific.
 
 Blog JSON:
@@ -535,7 +570,7 @@ const postOpenRouter = async (body) => {
       headers: {
         Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
-        "HTTP-Referer": process.env.OPENROUTER_HTTP_REFERER || process.env.SITE_URL || "https://dreamydecor.ai",
+        "HTTP-Referer": process.env.OPENROUTER_HTTP_REFERER || SITE_URL,
         "X-Title": "Dreamy Decor Blog Maker",
       },
       body: JSON.stringify(body),
@@ -713,6 +748,50 @@ const normalizeParagraphs = (values, min = 1) => {
   return paragraphs;
 };
 
+const normalizeForSimilarity = (value) =>
+  String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const wordCountOf = (value) => countWords(value);
+
+const assertUniqueStrings = (values, label) => {
+  const seen = new Set();
+  for (const value of values) {
+    const normalized = normalizeForSimilarity(value);
+    if (!normalized) continue;
+    if (seen.has(normalized)) {
+      throw new Error(`Generated blog repeats ${label}: "${String(value).slice(0, 80)}"`);
+    }
+    seen.add(normalized);
+  }
+};
+
+const assertParagraphQuality = (paragraphs) => {
+  const starts = new Map();
+
+  paragraphs.forEach((paragraph, index) => {
+    const words = wordCountOf(paragraph);
+    if (words < MIN_PARAGRAPH_WORDS || words > MAX_PARAGRAPH_WORDS) {
+      throw new Error(
+        `Generated paragraph ${index + 1} is ${words} words; expected ${MIN_PARAGRAPH_WORDS}-${MAX_PARAGRAPH_WORDS}.`
+      );
+    }
+
+    const start = normalizeForSimilarity(paragraph).split(" ").slice(0, 8).join(" ");
+    if (start) {
+      starts.set(start, (starts.get(start) || 0) + 1);
+      if (starts.get(start) > 1) {
+        throw new Error(`Generated blog repeats a paragraph opening: "${start}"`);
+      }
+    }
+  });
+
+  assertUniqueStrings(paragraphs, "paragraph text");
+};
+
 const assertAdFriendlyBlog = (blog) => {
   const articleText = [
     blog.title,
@@ -746,6 +825,10 @@ const assertAdFriendlyBlog = (blog) => {
     /\belection fraud\b/,
     /\bguaranteed income\b/,
     /\bmedical advice\b/,
+    /\bdreamydecor\.ai\b/,
+    /\bhttps?:\/\/\S+/,
+    /\bi (tested|tried|bought|installed|used|own|visited)\b/,
+    /\bwe (tested|tried|bought|installed|used|own|visited)\b/,
   ];
 
   const blocked = blockedPatterns.find((pattern) => pattern.test(articleText));
@@ -765,11 +848,63 @@ const assertAdFriendlyBlog = (blog) => {
     /\breal section paragraph\b/,
     /\breal action item\b/,
     /\bone allowed tag\b/,
+    /\bfocused-room-decor-topic\b/,
+    /\breal introduction paragraph\b/,
+    /\breal immediately useful decor tip\b/,
+    /\breal one-sentence summary\b/,
+    ...STOCK_FILLER_PHRASES.map((phrase) => new RegExp(`\\b${escapeRegExp(phrase)}\\b`)),
   ];
 
   const copiedTemplate = templatePatterns.find((pattern) => pattern.test(articleText));
   if (copiedTemplate) {
     throw new Error(`Generated blog copied template placeholder text: ${copiedTemplate}`);
+  }
+};
+
+const assertContentQuality = (blog) => {
+  if (blog.slug.length < 16 || blog.slug.split("-").length < 4) {
+    throw new Error(`Generated blog slug is too generic: "${blog.slug}"`);
+  }
+  if (BLOCKED_SLUGS.has(blog.slug)) {
+    throw new Error(`Generated blog copied a placeholder slug: "${blog.slug}"`);
+  }
+
+  if (blog.title.length < 45 || blog.title.length > 95) {
+    throw new Error(`Generated blog title length is ${blog.title.length}; expected 45-95 characters.`);
+  }
+
+  if (blog.description.length < MIN_DESCRIPTION_LENGTH || blog.description.length > MAX_DESCRIPTION_LENGTH) {
+    throw new Error(
+      `Generated blog description length is ${blog.description.length}; expected ${MIN_DESCRIPTION_LENGTH}-${MAX_DESCRIPTION_LENGTH} characters.`
+    );
+  }
+
+  if ((blog.description.match(/[.!?]/g) || []).length !== 1 || !/[.!?]$/.test(blog.description)) {
+    throw new Error("Generated blog description must be exactly one sentence.");
+  }
+
+  if (blog.sections.length !== 6) {
+    throw new Error(`Generated blog needs exactly 6 sections; received ${blog.sections.length}.`);
+  }
+
+  if (blog.checklist.length !== 6) {
+    throw new Error(`Generated blog needs exactly 6 checklist items; received ${blog.checklist.length}.`);
+  }
+
+  for (const [index, section] of blog.sections.entries()) {
+    if (section.paragraphs.length !== 2) {
+      throw new Error(`Generated section ${index + 1} needs exactly 2 paragraphs.`);
+    }
+  }
+
+  assertUniqueStrings(blog.sections.map((section) => section.heading), "section heading");
+  assertParagraphQuality([...blog.introParagraphs, ...blog.sections.flatMap((section) => section.paragraphs)]);
+
+  for (const [index, item] of blog.checklist.entries()) {
+    const words = wordCountOf(item);
+    if (words < 6 || words > 22) {
+      throw new Error(`Generated checklist item ${index + 1} is ${words} words; expected 6-22.`);
+    }
   }
 };
 
@@ -804,6 +939,7 @@ const normalizeBlog = (rawBlog, imageUrl) => {
   if (normalized.sections.length < 5) throw new Error("Generated blog needs at least 5 sections.");
   if (normalized.checklist.length < 5) throw new Error("Generated blog needs at least 5 checklist items.");
   assertAdFriendlyBlog(normalized);
+  assertContentQuality(normalized);
 
   return normalized;
 };
@@ -841,104 +977,12 @@ const countWords = (value) => {
   return matches ? matches.length : 0;
 };
 
-const trimTextToWords = (value, maxWords) => {
-  const words = String(value).match(/[A-Za-z0-9]+(?:['-][A-Za-z0-9]+)*|[^\sA-Za-z0-9]+/g) || [];
-  let wordCount = 0;
-  const kept = [];
-
-  for (const token of words) {
-    if (/[A-Za-z0-9]/.test(token)) {
-      wordCount += 1;
-    }
-
-    if (wordCount > maxWords) {
-      break;
-    }
-
-    kept.push(token);
-  }
-
-  const trimmed = kept.join(" ").replace(/\s+([,.;:!?])/g, "$1").replace(/\s+/g, " ").trim();
-  return /[.!?]$/.test(trimmed) ? trimmed : `${trimmed.replace(/[,;:]$/, "")}.`;
-};
-
-const plainHeading = (heading) =>
-  String(heading || "")
-    .replace(/^\s*\d+[.)-]?\s*/, "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase();
-
-const expansionParagraphsForSection = (blog, section, index) => {
-  const room = blog.tag === "decor" ? "space" : blog.tag;
-  const topic = plainHeading(section.heading) || "this idea";
-  const title = blog.title.toLowerCase();
-
-  return [
-    `A practical way to use this step is to make one small change, then judge the whole ${room} from the doorway. That view shows whether ${topic} is helping the room feel calmer or simply adding another object. If the change does not make the main view cleaner, remove one item before adding another.`,
-    `Check scale before you shop. Measure the wall, tabletop, walkway, or seating zone connected to ${topic}, then choose pieces that fill enough visual space without blocking daily use. In a ${room}, one substantial lamp, mirror, basket, tray, or textile often looks more intentional than several tiny accents spread around.`,
-    `Think about maintenance as part of the design. If ${topic} creates a surface that is hard to dust, a basket that is awkward to reach, or a path that people have to step around, it will not stay attractive for long. The best decor choice should make the room easier to live with, not only better for a photo.`,
-    `Use repetition to make the decision look deliberate. Repeat one finish, texture, shape, or color from ${topic} in another part of the ${room}, but keep the repeat subtle. A matching wood tone, woven texture, warm metal, or soft fabric link is usually enough to make separate pieces feel connected.`,
-    `Look at the room in different lighting before deciding the step is finished. Morning light, evening shadows, and lamp light can change how ${topic} reads. If the detail disappears at night, move it closer to a warm light source; if it feels too loud during the day, reduce contrast or simplify the surrounding surface.`,
-    `Leave negative space around the main choice. Shelves, counters, coffee tables, nightstands, and walls all need a little open room so the useful pieces can stand out. When everything is filled, even attractive decor starts to read as storage overflow instead of styling.`,
-    `Use a quick photo test for ${title}. Take one straight-on photo and one photo from the normal walking path through the ${room}. The photos will reveal crooked spacing, uneven visual weight, and small clutter faster than staring at the room in person.`,
-    `Know when to skip the idea. If the ${room} already has a strong focal point, heavy pattern, or limited walkway space, ${topic} may need to be quieter than expected. In that case, choose a lower-contrast version, use a smaller supporting piece, or put the budget toward lighting, storage, or scale first.`,
-  ].slice(index % 3, index % 3 + 4);
-};
-
-const expandShortBlogLocally = (blog, startingWordCount) => {
-  const expanded = {
-    ...blog,
-    introParagraphs: [...blog.introParagraphs],
-    sections: blog.sections.map((section) => ({
-      ...section,
-      paragraphs: [...section.paragraphs],
-    })),
-    checklist: [...blog.checklist],
-  };
-
-  console.log(`Generated blog was ${startingWordCount} words. Expanding locally to ${MIN_WORDS}-${MAX_WORDS} words...`);
-
-  const candidates = expanded.sections.flatMap((section, index) =>
-    expansionParagraphsForSection(expanded, section, index).map((paragraph) => ({ sectionIndex: index, paragraph }))
-  );
-
-  let wordCount = startingWordCount;
-  let cursor = 0;
-
-  while (wordCount < MIN_WORDS && cursor < candidates.length) {
-    const candidate = candidates[cursor];
-    const remaining = MAX_WORDS - wordCount;
-    if (remaining < 24) {
-      break;
-    }
-
-    const candidateWordCount = countWords(candidate.paragraph);
-    const paragraph = candidateWordCount > remaining ? trimTextToWords(candidate.paragraph, remaining) : candidate.paragraph;
-
-    expanded.sections[candidate.sectionIndex].paragraphs.push(paragraph);
-    wordCount = countWords(getArticleWordSource(expanded));
-    cursor += 1;
-  }
-
-  if (wordCount < MIN_WORDS) {
-    throw new Error(`Local expansion ended at ${wordCount} words; expected ${MIN_WORDS}-${MAX_WORDS}.`);
-  }
-
-  assertAdFriendlyBlog(expanded);
-  return { blog: expanded, wordCount };
-};
-
 const ensureTargetWordCount = async ({ rawBlog, imageUrl, keywordGuidance }) => {
   let blog = await normalizeBlogOrRepair({ rawBlog, imageUrl, keywordGuidance, context: "initial generation" });
   let wordCount = countWords(getArticleWordSource(blog));
 
   if (wordCount >= MIN_WORDS && wordCount <= MAX_WORDS) {
     return { blog, wordCount };
-  }
-
-  if (wordCount < MIN_WORDS) {
-    return expandShortBlogLocally(blog, wordCount);
   }
 
   for (let attempt = 1; attempt <= 3; attempt += 1) {
@@ -956,9 +1000,6 @@ const ensureTargetWordCount = async ({ rawBlog, imageUrl, keywordGuidance }) => 
       return { blog, wordCount };
     }
 
-    if (wordCount < MIN_WORDS) {
-      return expandShortBlogLocally(blog, wordCount);
-    }
   }
 
   throw new Error(`Generated blog word count is ${wordCount}; expected ${MIN_WORDS}-${MAX_WORDS}.`);
@@ -975,8 +1016,7 @@ const formatDate = (date) =>
 const toIsoDate = (date) => date.toISOString().slice(0, 10);
 
 const renderJsonLd = ({ blog, fileName, date }) => {
-  const siteUrl = normalizeBaseUrl(process.env.SITE_URL || "https://dreamydecor.ai");
-  const pageUrl = `${siteUrl}/${fileName}`;
+  const pageUrl = toPublicUrl(fileName);
   return JSON.stringify(
     {
       "@context": "https://schema.org",
@@ -1003,8 +1043,7 @@ const renderJsonLd = ({ blog, fileName, date }) => {
 };
 
 const renderBlogPage = ({ blog, fileName, date }) => {
-  const siteUrl = normalizeBaseUrl(process.env.SITE_URL || "https://dreamydecor.ai");
-  const pageUrl = `${siteUrl}/${fileName}`;
+  const pageUrl = toPublicUrl(fileName);
   const title = `DREAMY DECOR | ${blog.title}`;
   const displayDate = formatDate(date);
   const jsonLd = renderJsonLd({ blog, fileName, date });
@@ -1150,6 +1189,35 @@ const updateBlogIndex = ({ blog, fileName, date }) => {
   fs.writeFileSync(BLOG_INDEX_PATH, updated);
 };
 
+const updateSitemap = ({ fileName, date }) => {
+  const loc = toPublicUrl(fileName);
+  const lastmod = toIsoDate(date);
+  const entry = `  <url>\n    <loc>${escapeHtml(loc)}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>`;
+
+  if (!fs.existsSync(SITEMAP_PATH)) {
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entry}\n</urlset>\n`;
+    fs.writeFileSync(SITEMAP_PATH, sitemap, "utf8");
+    return;
+  }
+
+  const html = fs.readFileSync(SITEMAP_PATH, "utf8");
+  const locPattern = new RegExp(`<loc>${loc.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</loc>`);
+  if (locPattern.test(html)) {
+    const updated = html.replace(
+      new RegExp(`(<loc>${loc.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</loc>\\s*<lastmod>)([^<]+)(</lastmod>)`),
+      `$1${lastmod}$3`
+    );
+    fs.writeFileSync(SITEMAP_PATH, updated, "utf8");
+    return;
+  }
+
+  const updated = html.replace(/\s*<\/urlset>\s*$/i, `\n${entry}\n</urlset>\n`);
+  if (updated === html) {
+    throw new Error("Could not update sitemap.xml: missing closing urlset tag.");
+  }
+  fs.writeFileSync(SITEMAP_PATH, updated, "utf8");
+};
+
 const parseCliArgs = (argv) => {
   let imagePath = "";
   let keywordGuidance = "";
@@ -1210,12 +1278,24 @@ const main = async () => {
   const date = new Date();
   fs.writeFileSync(path.join(ROOT_DIR, fileName), renderBlogPage({ blog, fileName, date }));
   updateBlogIndex({ blog, fileName, date });
+  updateSitemap({ fileName, date });
 
   console.log(`Generated blog: ${blog.title} (${blog.slug}) - ${wordCount} words`);
   console.log(`Done: ${fileName}`);
 };
 
-main().catch((error) => {
-  console.error(error.message);
-  process.exitCode = 1;
-});
+if (require.main === module) {
+  main().catch((error) => {
+    console.error(error.message);
+    process.exitCode = 1;
+  });
+}
+
+module.exports = {
+  assertAdFriendlyBlog,
+  assertContentQuality,
+  countWords,
+  normalizeBlog,
+  renderBlogPage,
+  updateSitemap,
+};

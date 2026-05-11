@@ -1,0 +1,3 @@
+# AdSense publisher ID not issued yet.
+# After approval/setup, replace this comment with:
+# google.com, pub-USER_ID, DIRECT, f08c47fec0942fa0

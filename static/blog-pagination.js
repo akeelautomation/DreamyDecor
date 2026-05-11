@@ -3,37 +3,16 @@
   const style = document.createElement("style");
   style.textContent = `
     .postCard__thumb{
-<<<<<<< HEAD
-      width:min(112px, 42vw);
-      aspect-ratio:9 / 16;
-      margin:0 auto 14px;
-      border-radius:14px;
-=======
-<<<<<<< HEAD
-      width:min(124px, 46vw);
-      aspect-ratio:9 / 16;
-      margin:0 auto 14px;
-=======
       width:100%;
       aspect-ratio:16 / 9;
       margin:0 0 14px;
->>>>>>> 43a66868bead044227e30bcc0b928e4d1d57327e
       border-radius:16px;
->>>>>>> 1a1fdac082b9c0b995145a62db40f30bcff8cc30
     }
     .postCard__thumb img{
       object-fit:cover;
     }
     .postCard__thumb img[src^="static/favicon"]{
-<<<<<<< HEAD
-      padding:22px;
-=======
-<<<<<<< HEAD
-      padding:24px;
-=======
       padding:28px;
->>>>>>> 43a66868bead044227e30bcc0b928e4d1d57327e
->>>>>>> 1a1fdac082b9c0b995145a62db40f30bcff8cc30
       object-fit:contain;
     }
   `;

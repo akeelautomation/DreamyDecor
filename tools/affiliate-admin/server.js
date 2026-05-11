@@ -5,6 +5,7 @@ const path = require("path");
 const { URL } = require("url");
 const { writeProductIndex } = require("../generate-product-index");
 const { writeLatestPicksPage } = require("../generate-latest-picks");
+const { SITE_URL, toPublicUrl } = require("../site-config");
 
 const ROOT_DIR = path.resolve(__dirname, "..", "..");
 
@@ -46,7 +47,6 @@ loadEnvFile(path.join(ROOT_DIR, ".dev.vars"));
 
 const PUBLIC_DIR = path.join(__dirname, "public");
 const PICKS_HUB_PATH = path.join(ROOT_DIR, "picks.html");
-const SITE_URL = "https://dreamydecor.ai";
 const PORT = Number(process.env.PORT || 4311);
 const OPENROUTER_API_URL = process.env.OPENROUTER_API_BASE_URL || "https://openrouter.ai/api/v1/chat/completions";
 const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || "nvidia/nemotron-3-super-120b-a12b:free";
@@ -862,7 +862,7 @@ function createAnalysis(input, amazonData, sections) {
   const imageSize = extractImageSize(primaryImageUrl);
   const ogTitle = `${shortTitle} | Dreamy Decor`;
   const metaDescription = deriveMetaDescription(shortTitle, cardCopy);
-  const productUrl = `${SITE_URL}/${pageFile}`;
+  const productUrl = toPublicUrl(pageFile);
 
   return {
     affiliateUrl: input.affiliateUrl,
@@ -1314,7 +1314,7 @@ async function analyzeAffiliateInput(input) {
   return {
     ...analysis,
     pageFile,
-    productUrl: `${SITE_URL}/${pageFile}`,
+    productUrl: toPublicUrl(pageFile),
   };
 }
 
@@ -1399,7 +1399,7 @@ function createServer() {
           productIndexError: publishResult.productIndexError,
           latestPageUpdated: publishResult.latestPageUpdated,
           latestPageError: publishResult.latestPageError,
-          analysis: { ...analysis, pageFile: publishResult.pageFile, productUrl: `${SITE_URL}/${publishResult.pageFile}` },
+          analysis: { ...analysis, pageFile: publishResult.pageFile, productUrl: toPublicUrl(publishResult.pageFile) },
         });
         return;
       }

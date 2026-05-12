@@ -19,7 +19,7 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600..900&family=Space+Grotesk:wght@400..700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="static/style.css?v=20260401" />
+    <link rel="stylesheet" href="static/style.css?v=20260512" />
   </head>
   <body>
     <div class="bg" aria-hidden="true"></div>
@@ -37,103 +37,171 @@
 
     <main class="shell">
       <section class="home">
-        <div class="hero">
-          <div class="hero__eyebrow">Dreamy Decor Blog</div>
-          <h1 class="hero__title">Short decor reads that make real rooms easier.</h1>
-          <p class="hero__sub">
-            The blog now leads the site: start with layout, styling, lighting, and small-space guides,
-            then move to product picks once you know what your room actually needs.
-          </p>
-          <div class="hero__cta">
-            <a class="btn btn--primary" href="blog.html">Read Latest Articles</a>
-            <a class="btn" href="picks.html">Explore Decor Picks</a>
-          </div>
-          <div class="hero__meta">
-            <div class="badge">
-              <span class="badge__k">Blog First</span>
-              <span class="badge__v">Start with practical guidance before you spend money.</span>
-            </div>
-            <div class="badge">
-              <span class="badge__k">Fast Reads</span>
-              <span class="badge__v">Room-by-room articles built to get you unstuck quickly.</span>
-            </div>
-            <div class="badge">
-              <span class="badge__k">Clear Notes</span>
-              <span class="badge__v">Affiliate disclosures and privacy details stay easy to find.</span>
+        <section class="homeHero" aria-label="Dreamy Decor home">
+          <img
+            class="homeHero__image"
+            src="https://pub-72cdac497dcc43c08cff5703af3d8977.r2.dev/blog-generator/images/c4e560aa6bf2ccc107342f1b6323960d52f0bc4efffd12dce191334535e645e3.jpeg"
+            alt=""
+            loading="eager"
+            decoding="async"
+          />
+          <div class="homeHero__shade" aria-hidden="true"></div>
+          <div class="homeHero__content">
+            <div class="homeHero__eyebrow">Dreamy Decor Journal</div>
+            <h1 class="homeHero__title">Rooms that feel finished without feeling overdone.</h1>
+            <p class="homeHero__sub">
+              Practical decorating guides, real room ideas, and curated picks for softer lighting,
+              cleaner layouts, better texture, and spaces that work at night as well as they photograph.
+            </p>
+            <div class="homeHero__cta">
+              <a class="btn btn--primary" href="blog.html">Read the Blog</a>
+              <a class="btn btn--light" href="picks.html">Browse Picks</a>
             </div>
           </div>
-        </div>
+          <div class="homeHero__rail" aria-label="Featured room themes">
+            <a class="moodTile" href="blog-how-to-create-a-cozy-living-room-with-smart-decor-choices.html">
+              <span class="moodTile__k">Living room</span>
+              <span class="moodTile__t">Warm layers, calmer surfaces</span>
+            </a>
+            <a class="moodTile" href="blog-maximize-vertical-storage-in-small-spaces.html">
+              <span class="moodTile__k">Small spaces</span>
+              <span class="moodTile__t">Storage that still looks intentional</span>
+            </a>
+            <a class="moodTile" href="blog-outdoor-zen-garden-seating.html">
+              <span class="moodTile__k">Outdoor</span>
+              <span class="moodTile__t">Quiet corners for better evenings</span>
+            </a>
+          </div>
+        </section>
+
+        <section class="imageStory" aria-label="Decor directions">
+          <a class="imageStory__card" href="picks-living.html">
+            <img
+              src="https://m.media-amazon.com/images/I/714ARQbM6eL._AC_SL1500_.jpg"
+              alt=""
+              loading="lazy"
+              decoding="async"
+              referrerpolicy="no-referrer"
+            />
+            <span>Soft seating</span>
+          </a>
+          <a class="imageStory__card" href="picks-bedroom.html">
+            <img
+              src="https://m.media-amazon.com/images/I/81WzSln1YPL._AC_SL1500_.jpg"
+              alt=""
+              loading="lazy"
+              decoding="async"
+              referrerpolicy="no-referrer"
+            />
+            <span>Bedroom calm</span>
+          </a>
+          <a class="imageStory__card" href="picks-small-wins.html">
+            <img
+              src="https://m.media-amazon.com/images/I/81OIb14t8mL._AC_SL1500_.jpg"
+              alt=""
+              loading="lazy"
+              decoding="async"
+              referrerpolicy="no-referrer"
+            />
+            <span>Small upgrades</span>
+          </a>
+          <a class="imageStory__card" href="picks-outdoor.html">
+            <img
+              src="https://m.media-amazon.com/images/I/71sX-abE-ML._AC_SX679_.jpg"
+              alt=""
+              loading="lazy"
+              decoding="async"
+              referrerpolicy="no-referrer"
+            />
+            <span>Outdoor ease</span>
+          </a>
+        </section>
 
         <section class="pickSection" aria-label="Featured blog posts">
-          <h2 class="sectionTitle">Start with these posts</h2>
+          <h2 class="sectionTitle">Fresh Room Guides</h2>
           <div class="postGrid">
             <article class="postCard">
+              <a class="postCard__thumb" href="blog-tile-floor-decor-tips.html" aria-label="Read Tile Floor Decor Tips for a Cohesive Outdoor Space">
+                <img src="https://pub-72cdac497dcc43c08cff5703af3d8977.r2.dev/blog-generator/images/5e4637a585ae968696a67da9d79aff84ce60db38b5dfca7d6d7957acf0b8554b.jpeg" alt="" loading="lazy" />
+              </a>
               <div class="postCard__top">
-                <div class="postCard__tag">living room</div>
-                <div class="postCard__date">Apr 30, 2026</div>
+                <div class="postCard__tag">outdoor decor</div>
+                <div class="postCard__date">May 11, 2026</div>
               </div>
-              <h2 class="postCard__t">Cozy corner plants decor ideas that make an empty nook feel alive</h2>
+              <h2 class="postCard__t">Tile floor decor tips for a cohesive outdoor space</h2>
               <p class="postCard__c">
-                Layered greenery, warm baskets, and better height balance for a corner that feels softer instead of cluttered.
+                Ground an outdoor setup with cleaner zones, softer furniture choices, and a more intentional palette.
               </p>
               <div class="postCard__a">
-                <a class="btn" href="blog-cozy-corner-plants-decor.html">Read</a>
+                <a class="btn" href="blog-tile-floor-decor-tips.html">Read</a>
               </div>
             </article>
 
             <article class="postCard">
+              <a class="postCard__thumb" href="blog-outdoor-zen-garden-seating.html" aria-label="Read Create a Serene Outdoor Seating Nook with Simple Layouts">
+                <img src="https://pub-72cdac497dcc43c08cff5703af3d8977.r2.dev/blog-generator/images/7500f73db31573f029c9e222d3aca7f98f66d3914866037827a215a660d9f2e7.jpeg" alt="" loading="lazy" />
+              </a>
               <div class="postCard__top">
-                <div class="postCard__tag">home library</div>
-                <div class="postCard__date">Apr 30, 2026</div>
+                <div class="postCard__tag">outdoor decor</div>
+                <div class="postCard__date">May 11, 2026</div>
               </div>
-              <h2 class="postCard__t">Cozy library corner decor ideas that make a reading nook feel quiet and complete</h2>
+              <h2 class="postCard__t">Create a serene outdoor seating nook with simple layouts</h2>
               <p class="postCard__c">
-                A reading-first formula with better seating, warm light, and close-at-hand bookshelves.
+                Turn a small patio or garden edge into a quiet place to sit with natural texture and better spacing.
               </p>
               <div class="postCard__a">
-                <a class="btn" href="blog-cozy-library-corner.html">Read</a>
+                <a class="btn" href="blog-outdoor-zen-garden-seating.html">Read</a>
               </div>
             </article>
 
             <article class="postCard">
+              <a class="postCard__thumb" href="blog-how-to-create-a-cozy-living-room-with-smart-decor-choices.html" aria-label="Read How to Create a Cozy Living Room with Smart Decor Choices">
+                <img src="https://pub-72cdac497dcc43c08cff5703af3d8977.r2.dev/blog-generator/images/c4e560aa6bf2ccc107342f1b6323960d52f0bc4efffd12dce191334535e645e3.jpeg" alt="" loading="lazy" />
+              </a>
               <div class="postCard__top">
-                <div class="postCard__tag">living room</div>
-                <div class="postCard__date">Apr 30, 2026</div>
+                <div class="postCard__tag">living room decor</div>
+                <div class="postCard__date">May 11, 2026</div>
               </div>
-              <h2 class="postCard__t">Cozy living room decor ideas that make the whole room feel easier to relax in</h2>
+              <h2 class="postCard__t">How to create a cozy living room with smart decor choices</h2>
               <p class="postCard__c">
-                Softer seating, warmer lamps, and cleaner surfaces for a living room that feels calm at night.
+                Make the living room feel warmer and more organized with practical lighting, seating, and styling choices.
               </p>
               <div class="postCard__a">
-                <a class="btn" href="blog-cozy-living-room-decor.html">Read</a>
+                <a class="btn" href="blog-how-to-create-a-cozy-living-room-with-smart-decor-choices.html">Read</a>
               </div>
             </article>
 
             <article class="postCard">
+              <a class="postCard__thumb" href="blog-maximize-vertical-storage-in-small-spaces.html" aria-label="Read Maximize Vertical Storage in Small Spaces for a Clutter-Free Home">
+                <img src="https://pub-72cdac497dcc43c08cff5703af3d8977.r2.dev/blog-generator/images/1dd1d8a334adbad5a2b7d6c4b90d6512e651de2fe040d454b2c7fb5d75a76426.jpeg" alt="" loading="lazy" />
+              </a>
               <div class="postCard__top">
-                <div class="postCard__tag">outdoor</div>
-                <div class="postCard__date">Apr 30, 2026</div>
+                <div class="postCard__tag">small spaces</div>
+                <div class="postCard__date">May 11, 2026</div>
               </div>
-              <h2 class="postCard__t">Cozy small table in the garden decor ideas for a setup that actually gets used</h2>
+              <h2 class="postCard__t">Maximize vertical storage in small spaces for a clutter-free home</h2>
               <p class="postCard__c">
-                A compact garden table formula built around warm lighting, nearby plants, and enough open space to enjoy it.
+                Use height, wall space, and lighter visual weight to make compact rooms feel less crowded.
               </p>
               <div class="postCard__a">
-                <a class="btn" href="blog-cozy-small-garden-table-decor.html">Read</a>
+                <a class="btn" href="blog-maximize-vertical-storage-in-small-spaces.html">Read</a>
               </div>
             </article>
 
             <article class="postCard">
+              <a class="postCard__thumb" href="blog-hang-bags-on-wall-hooks.html" aria-label="Read Hang Bags on Wall Hooks for a Clutter-Free Entryway">
+                <img src="https://pub-72cdac497dcc43c08cff5703af3d8977.r2.dev/blog-generator/images/c121cac93dddb057d2c4942bebe6e0ffeaf3da3ba0296d6b2d1fbdafffa28e49.jpeg" alt="" loading="lazy" />
+              </a>
               <div class="postCard__top">
-                <div class="postCard__tag">living room</div>
-                <div class="postCard__date">Apr 29, 2026</div>
+                <div class="postCard__tag">entryway decor</div>
+                <div class="postCard__date">May 11, 2026</div>
               </div>
-              <h2 class="postCard__t">Living room lighting picks that make the room feel warmer fast</h2>
+              <h2 class="postCard__t">Hang bags on wall hooks for a clutter-free entryway</h2>
               <p class="postCard__c">
-                A few grounded lighting picks for brighter corners, softer evening light, and a living room that feels less flat.
+                Keep the drop zone functional and styled with better hook placement, spacing, and a cleaner wall setup.
               </p>
               <div class="postCard__a">
-                <a class="btn" href="blog-living-room-lighting-picks.html">Read</a>
+                <a class="btn" href="blog-hang-bags-on-wall-hooks.html">Read</a>
               </div>
             </article>
           </div>
@@ -142,7 +210,7 @@
         <section class="ctaBand" aria-label="Explore the full blog">
           <div>
             <div class="ctaBand__k">Full archive</div>
-            <div class="ctaBand__t">Want the complete blog index?</div>
+            <div class="ctaBand__t">Keep going through the full archive.</div>
             <div class="ctaBand__s">
               Browse every article in one place, then come back to decor picks once you have a clear direction.
             </div>

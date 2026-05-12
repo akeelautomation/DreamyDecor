@@ -1174,12 +1174,31 @@ const renderBlogCard = ({ blog, fileName, date }) => `          <article class="
             </div>
           </article>`;
 
+const blogCardDateValue = (card) => {
+  const match = card.match(/<div class="postCard__date">([^<]+)<\/div>/);
+  const timestamp = Date.parse(match ? match[1] : "");
+  return Number.isFinite(timestamp) ? timestamp : -Infinity;
+};
+
+const sortBlogCardsNewestFirst = (gridHtml) => {
+  const cards = gridHtml.match(/          <article class="postCard">[\s\S]*?          <\/article>/g);
+  if (!cards || cards.length < 2) {
+    return gridHtml;
+  }
+
+  return cards
+    .map((card, index) => ({ card, index, timestamp: blogCardDateValue(card) }))
+    .sort((a, b) => b.timestamp - a.timestamp || a.index - b.index)
+    .map(({ card }) => card)
+    .join("\n\n");
+};
+
 const updateBlogIndex = ({ blog, fileName, date }) => {
   const html = fs.readFileSync(BLOG_INDEX_PATH, "utf8");
   const card = renderBlogCard({ blog, fileName, date });
   const updated = html.replace(
-    /(<div class="postGrid" aria-label="Posts">\r?\n)/,
-    (_match, open) => `${open}${card}\n\n`
+    /(<div class="postGrid" aria-label="Posts">\r?\n)([\s\S]*?)(\r?\n\s*<\/div>\r?\n\s*<nav class="blogPager")/,
+    (_match, open, gridHtml, close) => `${open}${sortBlogCardsNewestFirst(`${card}\n\n${gridHtml}`)}${close}`
   );
 
   if (updated === html) {

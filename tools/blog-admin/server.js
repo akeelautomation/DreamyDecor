@@ -4,13 +4,18 @@ const path = require("node:path");
 const { execFile } = require("node:child_process");
 
 const ROOT_DIR = path.resolve(__dirname, "..", "..");
+const ENV_PATH = path.join(ROOT_DIR, ".env.local");
 const PUBLIC_DIR = path.join(__dirname, "public");
 const TMP_DIR = path.join(ROOT_DIR, ".blog-generator-tmp");
 const GENERATOR_SCRIPT = path.join(ROOT_DIR, "tools", "generate-blog-from-image.js");
+
+loadEnvFile(ENV_PATH);
+
 const PORT = Number(process.env.PORT || 3200);
 const MAX_UPLOAD_BYTES = 12 * 1024 * 1024;
 const MAX_KEYWORD_GUIDANCE_LENGTH = 2000;
-const GENERATOR_TIMEOUT_MS = 10 * 60 * 1000;
+const DEFAULT_GENERATOR_TIMEOUT_MS = 45 * 60 * 1000;
+const GENERATOR_TIMEOUT_MS = readPositiveIntegerEnv("BLOG_GENERATOR_TIMEOUT_MS", DEFAULT_GENERATOR_TIMEOUT_MS);
 
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -218,6 +223,7 @@ function trimMultipartContent(buffer) {
 function runGenerator(imagePath, res, keywordGuidance = "") {
   return new Promise((resolve, reject) => {
     let settled = false;
+    const startedAt = Date.now();
     const args = [GENERATOR_SCRIPT, imagePath];
     if (keywordGuidance) {
       args.push("--keywords", keywordGuidance);
@@ -234,8 +240,25 @@ function runGenerator(imagePath, res, keywordGuidance = "") {
       (error, stdout, stderr) => {
         settled = true;
         const combinedOutput = `${stdout || ""}${stderr ? `\n${stderr}` : ""}`.trim();
+        const elapsedSeconds = Math.round((Date.now() - startedAt) / 1000);
 
         if (error) {
+          if (error.killed && error.signal === "SIGTERM") {
+            reject(
+              new Error(
+                [
+                  `Blog generation timed out after ${Math.round(GENERATOR_TIMEOUT_MS / 60000)} minutes.`,
+                  "The provider was still cooling down, retrying, or revising the article.",
+                  "This item can be retried, or increase BLOG_GENERATOR_TIMEOUT_MS in .env.local for larger batches.",
+                  combinedOutput,
+                ]
+                  .filter(Boolean)
+                  .join("\n")
+              )
+            );
+            return;
+          }
+
           reject(new Error(combinedOutput || error.message));
           return;
         }
@@ -252,7 +275,7 @@ function runGenerator(imagePath, res, keywordGuidance = "") {
           pagePath: pageMatch?.[1] || "",
           pageUrl: pageMatch ? `/${pageMatch[1].replace(/\\/g, "/")}` : "",
           uploadedImageUrl: uploadMatch?.[1] || "",
-          output: combinedOutput,
+          output: `${combinedOutput}\nElapsed: ${elapsedSeconds}s`,
         });
       }
     );
@@ -282,4 +305,36 @@ function normalizeKeywordGuidance(value) {
     .replace(/\r\n/g, "\n")
     .trim()
     .slice(0, MAX_KEYWORD_GUIDANCE_LENGTH);
+}
+
+function readPositiveIntegerEnv(key, fallback) {
+  const value = Number(process.env[key]);
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
+function loadEnvFile(filePath) {
+  if (!fs.existsSync(filePath)) {
+    return;
+  }
+
+  fs.readFileSync(filePath, "utf8")
+    .split(/\r?\n/)
+    .forEach((line) => {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) {
+        return;
+      }
+
+      const separatorIndex = trimmed.indexOf("=");
+      if (separatorIndex === -1) {
+        return;
+      }
+
+      const key = trimmed.slice(0, separatorIndex).trim();
+      const value = trimmed.slice(separatorIndex + 1).trim().replace(/^["']|["']$/g, "");
+
+      if (!(key in process.env)) {
+        process.env[key] = value;
+      }
+    });
 }

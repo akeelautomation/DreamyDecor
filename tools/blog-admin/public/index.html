@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dreamy Decor Blog Maker</title>
+    <link rel="icon" href="/site/static/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -18,8 +19,8 @@
         <p class="eyebrow">Dreamy Decor AI blog desk</p>
         <h1>Turn decor photos into useful 1100-1200 word blog posts.</h1>
         <p class="subhead">
-          Queue room or decor images. The local server processes one at a time, sends each to R2,
-          asks OpenRouter for a practical decor topic, writes the blog page, and adds the card to the blog index.
+          Queue room or decor images. The local server runs a small concurrent batch, sends each image to R2,
+          asks OpenRouter for a practical decor topic, writes each blog page, and adds every card to the blog index.
         </p>
       </section>
 
@@ -28,7 +29,7 @@
           <label class="dropzone" for="imageInput">
             <input id="imageInput" name="image" type="file" accept="image/*" multiple required />
             <span class="drop-title">Drop or choose decor images</span>
-            <span class="drop-note">Batch mode runs one image at a time. JPG, PNG, or WEBP under 12 MB each.</span>
+            <span class="drop-note">Batch mode runs up to 3 images at once. JPG, PNG, or WEBP under 12 MB each.</span>
           </label>
 
           <label class="keyword-field" for="keywordInput">

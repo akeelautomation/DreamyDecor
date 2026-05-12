@@ -9,6 +9,8 @@ const BLOG_INDEX_PATH = path.join(ROOT_DIR, "blog.html");
 const SITEMAP_PATH = path.join(ROOT_DIR, "sitemap.xml");
 const TMP_DIR = path.join(ROOT_DIR, ".blog-generator-tmp");
 const OPENROUTER_THROTTLE_PATH = path.join(TMP_DIR, "openrouter-last-call.json");
+const OPENROUTER_THROTTLE_LOCK_PATH = path.join(TMP_DIR, "openrouter-last-call.lock");
+const OUTPUT_WRITE_LOCK_PATH = path.join(TMP_DIR, "blog-output-write.lock");
 const IMAGE_UPLOAD_CACHE_PATH = path.join(TMP_DIR, "image-upload-cache.json");
 const DEFAULT_MODEL = "google/gemini-2.5-flash-lite";
 const DEFAULT_FALLBACK_MODELS = [
@@ -18,13 +20,17 @@ const DEFAULT_FALLBACK_MODELS = [
 ];
 const DEFAULT_OPENROUTER_MIN_REQUEST_INTERVAL_MS = 25000;
 const DEFAULT_OPENROUTER_RETRY_COOLDOWN_MS = 90000;
+const DEFAULT_R2_UPLOAD_ATTEMPTS = 6;
+const DEFAULT_R2_UPLOAD_TIMEOUT_MS = 45000;
+const DEFAULT_R2_UPLOAD_RETRY_BASE_MS = 750;
+const DEFAULT_LOCK_STALE_MS = 20 * 60 * 1000;
 const MIN_WORDS = 1100;
 const MAX_WORDS = 1200;
 const MAX_KEYWORD_GUIDANCE_LENGTH = 2000;
 const MIN_DESCRIPTION_LENGTH = 70;
 const MAX_DESCRIPTION_LENGTH = 155;
 const MIN_PARAGRAPH_WORDS = 45;
-const MAX_PARAGRAPH_WORDS = 105;
+const MAX_PARAGRAPH_WORDS = 190;
 const STOCK_FILLER_PHRASES = [
   ["check", "scale", "before", "you", "shop"].join(" "),
   ["think", "about", "maintenance", "as", "part", "of", "the", "design"].join(" "),
@@ -147,6 +153,52 @@ const readIntegerEnv = (key, fallback) => {
   return Number.isFinite(value) && value >= 0 ? value : fallback;
 };
 
+const readPositiveIntegerEnv = (key, fallback) => {
+  const value = Number(process.env[key]);
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+};
+
+const jitter = (ms) => Math.round(ms * (0.75 + Math.random() * 0.5));
+
+const isRetryableStatus = (status) => [408, 409, 425, 429, 500, 502, 503, 504].includes(status);
+
+const withFileLock = async (lockPath, task) => {
+  fs.mkdirSync(TMP_DIR, { recursive: true });
+  let handle = null;
+
+  while (!handle) {
+    try {
+      handle = fs.openSync(lockPath, "wx");
+      fs.writeFileSync(handle, JSON.stringify({ pid: process.pid, createdAt: new Date().toISOString() }));
+    } catch (error) {
+      if (error.code !== "EEXIST") {
+        throw error;
+      }
+
+      try {
+        const stat = fs.statSync(lockPath);
+        if (Date.now() - stat.mtimeMs > DEFAULT_LOCK_STALE_MS) {
+          fs.rmSync(lockPath, { force: true });
+          continue;
+        }
+      } catch (statError) {
+        if (statError.code !== "ENOENT") {
+          throw statError;
+        }
+      }
+
+      await sleep(250);
+    }
+  }
+
+  try {
+    return await task();
+  } finally {
+    fs.closeSync(handle);
+    fs.rmSync(lockPath, { force: true });
+  }
+};
+
 const splitEnvList = (value) =>
   String(value || "")
     .split(",")
@@ -207,35 +259,39 @@ const writeImageUploadCache = (cache) => {
 };
 
 const throttleOpenRouter = async () => {
-  fs.mkdirSync(TMP_DIR, { recursive: true });
-  const minRequestIntervalMs = readIntegerEnv(
-    "OPENROUTER_MIN_REQUEST_INTERVAL_MS",
-    DEFAULT_OPENROUTER_MIN_REQUEST_INTERVAL_MS
-  );
-  const state = readOpenRouterThrottleState();
-  const waitUntil = Math.max(state.lastRequestAt + minRequestIntervalMs, state.cooldownUntil);
-  const waitMs = waitUntil - Date.now();
+  await withFileLock(OPENROUTER_THROTTLE_LOCK_PATH, async () => {
+    fs.mkdirSync(TMP_DIR, { recursive: true });
+    const minRequestIntervalMs = readIntegerEnv(
+      "OPENROUTER_MIN_REQUEST_INTERVAL_MS",
+      DEFAULT_OPENROUTER_MIN_REQUEST_INTERVAL_MS
+    );
+    const state = readOpenRouterThrottleState();
+    const waitUntil = Math.max(state.lastRequestAt + minRequestIntervalMs, state.cooldownUntil);
+    const waitMs = waitUntil - Date.now();
 
-  if (waitMs > 0) {
-    console.log(`Waiting ${Math.ceil(waitMs / 1000)}s for OpenRouter pacing...`);
-    await sleep(waitMs);
-  }
+    if (waitMs > 0) {
+      console.log(`Waiting ${Math.ceil(waitMs / 1000)}s for OpenRouter pacing...`);
+      await sleep(waitMs);
+    }
 
-  writeOpenRouterThrottleState({
-    lastRequestAt: Date.now(),
-    cooldownUntil: Math.max(state.cooldownUntil, Date.now()),
+    writeOpenRouterThrottleState({
+      lastRequestAt: Date.now(),
+      cooldownUntil: Math.max(state.cooldownUntil, Date.now()),
+    });
   });
 };
 
 const applyOpenRouterRetryCooldown = async (attempt, status) => {
   const baseCooldownMs = readIntegerEnv("OPENROUTER_RETRY_COOLDOWN_MS", DEFAULT_OPENROUTER_RETRY_COOLDOWN_MS);
   const cooldownMs = baseCooldownMs * attempt;
-  const state = readOpenRouterThrottleState();
   const cooldownUntil = Date.now() + cooldownMs;
 
-  writeOpenRouterThrottleState({
-    lastRequestAt: state.lastRequestAt || Date.now(),
-    cooldownUntil: Math.max(state.cooldownUntil, cooldownUntil),
+  await withFileLock(OPENROUTER_THROTTLE_LOCK_PATH, async () => {
+    const state = readOpenRouterThrottleState();
+    writeOpenRouterThrottleState({
+      lastRequestAt: state.lastRequestAt || Date.now(),
+      cooldownUntil: Math.max(state.cooldownUntil, cooldownUntil),
+    });
   });
 
   console.log(`OpenRouter returned ${status}. Cooling down ${Math.ceil(cooldownMs / 1000)}s before retry...`);
@@ -302,6 +358,34 @@ const signR2Put = ({ body, contentType, objectKey }) => {
   };
 };
 
+const putR2Object = async ({ signedRequest, body, attempt }) => {
+  const timeoutMs = readPositiveIntegerEnv("R2_UPLOAD_TIMEOUT_MS", DEFAULT_R2_UPLOAD_TIMEOUT_MS);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(signedRequest.url, {
+      method: "PUT",
+      headers: signedRequest.headers,
+      body,
+      signal: controller.signal,
+    });
+
+    const responseText = response.ok ? "" : await response.text();
+    return { ok: response.ok, status: response.status, statusText: response.statusText, text: responseText };
+  } catch (error) {
+    return {
+      ok: false,
+      status: 0,
+      statusText: error.name === "AbortError" ? `Timed out after ${Math.round(timeoutMs / 1000)}s` : error.message,
+      text: error.cause?.message || "",
+      attempt,
+    };
+  } finally {
+    clearTimeout(timeout);
+  }
+};
+
 const uploadToR2 = async (imagePath) => {
   const body = fs.readFileSync(imagePath);
   const contentHash = sha256(body);
@@ -317,28 +401,51 @@ const uploadToR2 = async (imagePath) => {
   const ext = path.extname(imagePath).toLowerCase();
   const objectKey = `blog-generator/images/${contentHash}${ext}`;
   const signedRequest = signR2Put({ body, contentType, objectKey });
-  const response = await fetch(signedRequest.url, {
-    method: "PUT",
-    headers: signedRequest.headers,
-    body,
-  });
+  const maxAttempts = readPositiveIntegerEnv("R2_UPLOAD_ATTEMPTS", DEFAULT_R2_UPLOAD_ATTEMPTS);
+  const retryBaseMs = readPositiveIntegerEnv("R2_UPLOAD_RETRY_BASE_MS", DEFAULT_R2_UPLOAD_RETRY_BASE_MS);
+  let lastFailure = null;
 
-  if (!response.ok) {
-    throw new Error(`R2 upload failed: ${response.status} ${response.statusText}\n${await response.text()}`);
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    if (attempt > 1) {
+      console.log(`Retrying R2 upload ${attempt}/${maxAttempts}...`);
+    }
+
+    const result = await putR2Object({ signedRequest, body, attempt });
+    if (result.ok) {
+      const url = `${normalizeBaseUrl(process.env.R2_PUBLIC_BASE_URL)}/${objectKey}`;
+      cache.uploads[contentHash] = {
+        url,
+        objectKey,
+        contentType,
+        size: body.length,
+        originalName: path.basename(imagePath),
+        uploadedAt: new Date().toISOString(),
+      };
+      writeImageUploadCache(cache);
+
+      return url;
+    }
+
+    lastFailure = result;
+    const retryable = result.status === 0 || isRetryableStatus(result.status);
+    if (!retryable || attempt === maxAttempts) {
+      break;
+    }
+
+    const waitMs = jitter(retryBaseMs * 2 ** (attempt - 1));
+    console.log(
+      `R2 upload attempt ${attempt}/${maxAttempts} failed: ${result.status || "network"} ${result.statusText}. Waiting ${Math.ceil(
+        waitMs / 1000
+      )}s...`
+    );
+    await sleep(waitMs);
   }
 
-  const url = `${normalizeBaseUrl(process.env.R2_PUBLIC_BASE_URL)}/${objectKey}`;
-  cache.uploads[contentHash] = {
-    url,
-    objectKey,
-    contentType,
-    size: body.length,
-    originalName: path.basename(imagePath),
-    uploadedAt: new Date().toISOString(),
-  };
-  writeImageUploadCache(cache);
-
-  return url;
+  throw new Error(
+    `R2 upload failed after ${maxAttempts} attempt${maxAttempts === 1 ? "" : "s"}: ${lastFailure?.status || "network"} ${
+      lastFailure?.statusText || "request failed"
+    }${lastFailure?.text ? `\n${lastFailure.text}` : ""}`
+  );
 };
 
 const getExistingBlogSlugs = () => {
@@ -968,20 +1075,35 @@ const normalizeBlog = (rawBlog, imageUrl) => {
 };
 
 const normalizeBlogOrRepair = async ({ rawBlog, imageUrl, keywordGuidance, context }) => {
+  let blog = rawBlog;
+  let lastError = null;
+
   try {
-    return normalizeBlog(rawBlog, imageUrl);
+    return normalizeBlog(blog, imageUrl);
   } catch (error) {
-    console.log(`Generated blog structure failed validation during ${context}. Running structure repair pass...`);
-    return normalizeBlog(
-      await repairStructuredBlog({
-        blog: rawBlog,
-        imageUrl,
-        keywordGuidance,
-        reason: error.message,
-      }),
-      imageUrl
-    );
+    lastError = error;
   }
+
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    console.log(
+      `Generated blog structure failed validation during ${context}: ${lastError.message}. Running structure repair pass ${attempt}/3...`
+    );
+
+    blog = await repairStructuredBlog({
+      blog,
+      imageUrl,
+      keywordGuidance,
+      reason: lastError.message,
+    });
+
+    try {
+      return normalizeBlog(blog, imageUrl);
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError;
 };
 
 const getArticleWordSource = (blog) =>
@@ -1000,6 +1122,87 @@ const countWords = (value) => {
   return matches ? matches.length : 0;
 };
 
+const trimParagraphToWordLimit = (paragraph, maxWords) => {
+  const text = String(paragraph || "").replace(/\s+/g, " ").trim();
+  if (countWords(text) <= maxWords) {
+    return text;
+  }
+
+  const sentences = text.match(/[^.!?]+[.!?]+(?:\s+|$)|[^.!?]+$/g) || [text];
+  const kept = [];
+  let keptWords = 0;
+
+  for (const sentence of sentences) {
+    const sentenceText = sentence.trim();
+    const sentenceWords = countWords(sentenceText);
+    if (kept.length && keptWords + sentenceWords > maxWords) {
+      break;
+    }
+    kept.push(sentenceText);
+    keptWords += sentenceWords;
+    if (keptWords >= Math.max(MIN_PARAGRAPH_WORDS, maxWords - 15)) {
+      break;
+    }
+  }
+
+  if (countWords(kept.join(" ")) >= Math.max(MIN_PARAGRAPH_WORDS, maxWords - 15)) {
+    return kept.join(" ").replace(/\s+/g, " ").trim();
+  }
+
+  const words = text.split(/\s+/).slice(0, maxWords);
+  return `${words.join(" ").replace(/[,:;/-]+$/, "")}.`;
+};
+
+const condenseBlogLocally = (blog, targetWords = Math.floor((MIN_WORDS + MAX_WORDS) / 2)) => {
+  const paragraphCount = blog.introParagraphs.length + blog.sections.reduce((sum, section) => sum + section.paragraphs.length, 0);
+  const nonParagraphWords = countWords(
+    [
+      blog.quickWin,
+      ...blog.sections.map((section) => section.heading),
+      "Checklist",
+      ...blog.checklist,
+    ].join(" ")
+  );
+  const paragraphWordLimit = Math.max(
+    MIN_PARAGRAPH_WORDS,
+    Math.min(95, Math.floor((targetWords - nonParagraphWords) / Math.max(1, paragraphCount)))
+  );
+
+  return {
+    ...blog,
+    introParagraphs: blog.introParagraphs.map((paragraph) => trimParagraphToWordLimit(paragraph, paragraphWordLimit)),
+    sections: blog.sections.map((section) => ({
+      ...section,
+      paragraphs: section.paragraphs.map((paragraph) => trimParagraphToWordLimit(paragraph, paragraphWordLimit)),
+    })),
+  };
+};
+
+const tryCondenseBlogToTarget = (blog, imageUrl, wordCount) => {
+  if (wordCount <= MAX_WORDS) {
+    return null;
+  }
+
+  console.log(`Generated blog is ${wordCount} words. Applying local condensation before extra model calls...`);
+  let candidateBlog = blog;
+  let candidateWordCount = wordCount;
+
+  for (const targetWords of [1300, 1280, 1250, 1220, 1190, 1150, 1125, 1100]) {
+    const condensed = normalizeBlog(condenseBlogLocally(candidateBlog, targetWords), imageUrl);
+    const condensedWordCount = countWords(getArticleWordSource(condensed));
+    if (condensedWordCount >= MIN_WORDS && condensedWordCount <= MAX_WORDS) {
+      return { blog: condensed, wordCount: condensedWordCount };
+    }
+    candidateBlog = condensed;
+    candidateWordCount = condensedWordCount;
+    if (candidateWordCount < MIN_WORDS) {
+      break;
+    }
+  }
+
+  return null;
+};
+
 const ensureTargetWordCount = async ({ rawBlog, imageUrl, keywordGuidance }) => {
   let blog = await normalizeBlogOrRepair({ rawBlog, imageUrl, keywordGuidance, context: "initial generation" });
   let wordCount = countWords(getArticleWordSource(blog));
@@ -1008,21 +1211,54 @@ const ensureTargetWordCount = async ({ rawBlog, imageUrl, keywordGuidance }) => 
     return { blog, wordCount };
   }
 
+  const initialCondensed = tryCondenseBlogToTarget(blog, imageUrl, wordCount);
+  if (initialCondensed) {
+    return initialCondensed;
+  }
+
   for (let attempt = 1; attempt <= 3; attempt += 1) {
     console.log(`Generated blog was ${wordCount} words. Requesting ${MIN_WORDS}-${MAX_WORDS} word revision...`);
-    const revisedBlog = await resizeBlog({ blog, imageUrl, wordCount, keywordGuidance });
-    blog = await normalizeBlogOrRepair({
-      rawBlog: revisedBlog,
-      imageUrl,
-      keywordGuidance,
-      context: `word-count revision ${attempt}`,
-    });
-    wordCount = countWords(getArticleWordSource(blog));
+    try {
+      const revisedBlog = await resizeBlog({ blog, imageUrl, wordCount, keywordGuidance });
+      blog = await normalizeBlogOrRepair({
+        rawBlog: revisedBlog,
+        imageUrl,
+        keywordGuidance,
+        context: `word-count revision ${attempt}`,
+      });
+      wordCount = countWords(getArticleWordSource(blog));
+    } catch (error) {
+      console.log(`Word-count revision ${attempt} failed validation: ${error.message}`);
+      const condensed = tryCondenseBlogToTarget(blog, imageUrl, wordCount);
+      if (condensed) {
+        return condensed;
+      }
+    }
 
     if (wordCount >= MIN_WORDS && wordCount <= MAX_WORDS) {
       return { blog, wordCount };
     }
 
+    const condensed = tryCondenseBlogToTarget(blog, imageUrl, wordCount);
+    if (condensed) {
+      return condensed;
+    }
+  }
+
+  if (wordCount > MAX_WORDS) {
+    console.log(`Generated blog stayed at ${wordCount} words. Applying local condensation fallback...`);
+    for (const targetWords of [1300, 1280, 1250, 1220, 1190, 1150, 1125, 1100]) {
+      const condensed = normalizeBlog(condenseBlogLocally(blog, targetWords), imageUrl);
+      const condensedWordCount = countWords(getArticleWordSource(condensed));
+      if (condensedWordCount >= MIN_WORDS && condensedWordCount <= MAX_WORDS) {
+        return { blog: condensed, wordCount: condensedWordCount };
+      }
+      blog = condensed;
+      wordCount = condensedWordCount;
+      if (wordCount < MIN_WORDS) {
+        break;
+      }
+    }
   }
 
   throw new Error(`Generated blog word count is ${wordCount}; expected ${MIN_WORDS}-${MAX_WORDS}.`);
@@ -1263,9 +1499,21 @@ const updateSitemap = ({ fileName, date }) => {
 const parseCliArgs = (argv) => {
   let imagePath = "";
   let keywordGuidance = "";
+  let dryRun = false;
+  let uploadOnly = false;
 
   for (let index = 2; index < argv.length; index += 1) {
     const arg = argv[index];
+
+    if (arg === "--dry-run") {
+      dryRun = true;
+      continue;
+    }
+
+    if (arg === "--upload-only") {
+      uploadOnly = true;
+      continue;
+    }
 
     if (arg === "--keywords") {
       keywordGuidance = argv[index + 1] || "";
@@ -1286,6 +1534,8 @@ const parseCliArgs = (argv) => {
   return {
     imagePath,
     keywordGuidance: normalizeKeywordGuidance(keywordGuidance),
+    dryRun,
+    uploadOnly,
   };
 };
 
@@ -1293,9 +1543,9 @@ const main = async () => {
   loadEnvFile(ENV_PATH);
   requireEnv();
 
-  const { imagePath, keywordGuidance } = parseCliArgs(process.argv);
+  const { imagePath, keywordGuidance, dryRun, uploadOnly } = parseCliArgs(process.argv);
   if (!imagePath) {
-    throw new Error('Usage: node tools/generate-blog-from-image.js "C:\\path\\to\\decor-image.jpeg" [--keywords "phrase one\\nphrase two"]');
+    throw new Error('Usage: node tools/generate-blog-from-image.js "C:\\path\\to\\decor-image.jpeg" [--keywords "phrase one\\nphrase two"] [--dry-run] [--upload-only]');
   }
 
   const resolvedImagePath = path.resolve(imagePath);
@@ -1307,6 +1557,11 @@ const main = async () => {
   const imageUrl = await uploadToR2(resolvedImagePath);
   console.log(`Uploaded image: ${imageUrl}`);
 
+  if (uploadOnly) {
+    console.log("Upload-only mode: skipped OpenRouter and site writes.");
+    return;
+  }
+
   console.log("Requesting useful decor blog from OpenRouter...");
   if (keywordGuidance) {
     console.log("Using optional keyword and phrase guidance.");
@@ -1314,13 +1569,22 @@ const main = async () => {
   const rawBlog = await requestBlog({ imageUrl, keywordGuidance });
   const { blog, wordCount } = await ensureTargetWordCount({ rawBlog, imageUrl, keywordGuidance });
 
-  const existingSlugs = getExistingBlogSlugs();
-  blog.slug = makeUniqueSlug(blog.slug, existingSlugs);
-  const fileName = `blog-${blog.slug}.html`;
-  const date = new Date();
-  fs.writeFileSync(path.join(ROOT_DIR, fileName), renderBlogPage({ blog, fileName, date }));
-  updateBlogIndex({ blog, fileName, date });
-  updateSitemap({ fileName, date });
+  if (dryRun) {
+    console.log(`Generated blog: ${blog.title} (${blog.slug}) - ${wordCount} words`);
+    console.log("Dry run: skipped writing blog page, blog index, and sitemap.");
+    return;
+  }
+
+  let fileName = "";
+  await withFileLock(OUTPUT_WRITE_LOCK_PATH, async () => {
+    const existingSlugs = getExistingBlogSlugs();
+    blog.slug = makeUniqueSlug(blog.slug, existingSlugs);
+    fileName = `blog-${blog.slug}.html`;
+    const date = new Date();
+    fs.writeFileSync(path.join(ROOT_DIR, fileName), renderBlogPage({ blog, fileName, date }));
+    updateBlogIndex({ blog, fileName, date });
+    updateSitemap({ fileName, date });
+  });
 
   console.log(`Generated blog: ${blog.title} (${blog.slug}) - ${wordCount} words`);
   console.log(`Done: ${fileName}`);

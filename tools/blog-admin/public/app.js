@@ -10,17 +10,18 @@ const clearButton = document.querySelector("#clearButton");
 const summary = document.querySelector("#summary");
 const queueList = document.querySelector("#queueList");
 
-const PROCESS_DELAY_MS = 5000;
-const FAILED_ITEM_RETRY_DELAY_MS = 30000;
-const MAX_ITEM_ATTEMPTS = 2;
+const BATCH_CONCURRENCY = 3;
+const FAILED_ITEM_RETRY_DELAY_MS = 5000;
+const MAX_ITEM_ATTEMPTS = 3;
 
 let queuedFiles = [];
 let previewUrls = [];
 let isProcessing = false;
 let stopRequested = false;
-let activeController = null;
+let activeControllers = new Set();
 let completed = 0;
 let failed = 0;
+let started = 0;
 
 imageInput.addEventListener("change", () => {
   setQueuedFiles(Array.from(imageInput.files || []));
@@ -55,72 +56,40 @@ form.addEventListener("submit", async (event) => {
   stopRequested = false;
   completed = 0;
   failed = 0;
+  started = 0;
   const keywordGuidance = getKeywordGuidance();
+  const total = queuedFiles.length;
+  const workerCount = Math.min(BATCH_CONCURRENCY, total);
   setLoading(true);
-  summary.textContent = `Processing 0 of ${queuedFiles.length}. Each image runs one at a time.`;
+  updateBatchSummary(total, workerCount);
   summary.classList.remove("empty");
 
-  for (let index = 0; index < queuedFiles.length; index += 1) {
-    if (stopRequested) {
-      break;
+  let nextIndex = 0;
+  const claimNextIndex = () => {
+    if (stopRequested || nextIndex >= total) {
+      return -1;
     }
+    const index = nextIndex;
+    nextIndex += 1;
+    started += 1;
+    updateBatchSummary(total, workerCount);
+    return index;
+  };
 
-    const file = queuedFiles[index];
-    const row = queueList.querySelector(`[data-index="${index}"]`);
-
-    updateQueueRow(row, {
-      state: "loading",
-      status: `Processing ${index + 1} of ${queuedFiles.length}...`,
-    });
-    setStatus(`Generating ${index + 1} of ${queuedFiles.length}: ${file.name}`, "loading");
-
-    try {
-      const result = await generateBlogWithRetry(file, row, index, queuedFiles.length, keywordGuidance);
-      if (stopRequested) {
-        updateQueueRow(row, {
-          state: "error",
-          status: "Stopped",
-          error: "Stopped by user.",
-        });
-        break;
+  await Promise.all(
+    Array.from({ length: workerCount }, async () => {
+      while (!stopRequested) {
+        const index = claimNextIndex();
+        if (index === -1) {
+          return;
+        }
+        await processQueueItem(index, total, workerCount, keywordGuidance);
       }
-      completed += 1;
-      updateQueueRow(row, {
-        state: "success",
-        status: `${result.wordCount || "1100-1200"} words`,
-        result,
-      });
-    } catch (error) {
-      if (isAbortError(error)) {
-        updateQueueRow(row, {
-          state: "error",
-          status: "Stopped",
-          error: "Stopped by user.",
-        });
-        break;
-      }
-
-      failed += 1;
-      updateQueueRow(row, {
-        state: "error",
-        status: "Failed",
-        error: error.message || "Blog generation failed.",
-      });
-    }
-
-    summary.textContent = `Completed ${completed} of ${queuedFiles.length}. Failed ${failed}.`;
-
-    if (index < queuedFiles.length - 1) {
-      if (stopRequested) {
-        break;
-      }
-      setStatus("Moving to the next image. Backend pacing is adaptive and only slows down after provider errors.", "loading");
-      await sleepWithStop(PROCESS_DELAY_MS);
-    }
-  }
+    })
+  );
 
   isProcessing = false;
-  activeController = null;
+  activeControllers.clear();
   setLoading(false);
   setStatus(
     stopRequested ? `Batch stopped. ${completed} done, ${failed} failed.` : `Batch finished. ${completed} done, ${failed} failed.`,
@@ -135,11 +104,9 @@ stopButton.addEventListener("click", () => {
 
   stopRequested = true;
   stopButton.disabled = true;
-  setStatus("Stopping after the current request is cancelled.", "error");
+  setStatus("Stopping active requests.", "error");
 
-  if (activeController) {
-    activeController.abort();
-  }
+  activeControllers.forEach((controller) => controller.abort());
 });
 
 clearButton.addEventListener("click", () => {
@@ -155,6 +122,61 @@ clearButton.addEventListener("click", () => {
   summary.classList.add("empty");
   setStatus("", "");
 });
+
+async function processQueueItem(index, total, workerCount, keywordGuidance) {
+  const file = queuedFiles[index];
+  const row = queueList.querySelector(`[data-index="${index}"]`);
+
+  updateQueueRow(row, {
+    state: "loading",
+    status: `Processing ${index + 1} of ${total}...`,
+  });
+  setStatus(`Running ${activeControllers.size + 1}/${workerCount}: ${file.name}`, "loading");
+
+  try {
+    const result = await generateBlogWithRetry(file, row, index, total, keywordGuidance);
+    if (stopRequested) {
+      updateQueueRow(row, {
+        state: "error",
+        status: "Stopped",
+        error: "Stopped by user.",
+      });
+      return;
+    }
+
+    completed += 1;
+    updateQueueRow(row, {
+      state: "success",
+      status: `${result.wordCount || "1100-1200"} words`,
+      result,
+    });
+  } catch (error) {
+    if (isAbortError(error)) {
+      updateQueueRow(row, {
+        state: "error",
+        status: "Stopped",
+        error: "Stopped by user.",
+      });
+      stopRequested = true;
+      return;
+    }
+
+    failed += 1;
+    updateQueueRow(row, {
+      state: "error",
+      status: "Failed",
+      error: error.message || "Blog generation failed.",
+    });
+  } finally {
+    updateBatchSummary(total, workerCount);
+  }
+}
+
+function updateBatchSummary(total, workerCount) {
+  const running = activeControllers.size;
+  const remaining = Math.max(0, total - completed - failed - running);
+  summary.textContent = `Started ${started} of ${total}. Running ${running}/${workerCount}. Completed ${completed}. Failed ${failed}. Remaining ${remaining}.`;
+}
 
 function renderQueue() {
   revokePreviewUrls();
@@ -225,13 +247,14 @@ async function generateBlog(file, keywordGuidance = "") {
   const formData = new FormData();
   formData.append("image", file);
   formData.append("keywords", keywordGuidance);
-  activeController = new AbortController();
+  const controller = new AbortController();
+  activeControllers.add(controller);
 
   try {
     const response = await fetch("/api/generate-blog", {
       method: "POST",
       body: formData,
-      signal: activeController.signal,
+      signal: controller.signal,
     });
     const data = await response.json();
 
@@ -241,7 +264,7 @@ async function generateBlog(file, keywordGuidance = "") {
 
     return data;
   } finally {
-    activeController = null;
+    activeControllers.delete(controller);
   }
 }
 
@@ -353,7 +376,7 @@ async function retryRow(row) {
     setStatus(isAbortError(error) ? "Retry stopped." : "Retry failed.", "error");
   } finally {
     isProcessing = false;
-    activeController = null;
+    activeControllers.clear();
     setLoading(false);
   }
 }

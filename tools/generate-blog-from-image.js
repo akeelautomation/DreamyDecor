@@ -10,7 +10,12 @@ const SITEMAP_PATH = path.join(ROOT_DIR, "sitemap.xml");
 const TMP_DIR = path.join(ROOT_DIR, ".blog-generator-tmp");
 const OPENROUTER_THROTTLE_PATH = path.join(TMP_DIR, "openrouter-last-call.json");
 const IMAGE_UPLOAD_CACHE_PATH = path.join(TMP_DIR, "image-upload-cache.json");
-const DEFAULT_MODEL = "nvidia/nemotron-3-super-120b-a12b:free";
+const DEFAULT_MODEL = "google/gemini-2.5-flash-lite";
+const DEFAULT_FALLBACK_MODELS = [
+  "openai/gpt-4o-mini",
+  "qwen/qwen3-vl-8b-instruct",
+  "google/gemma-4-26b-a4b-it:free",
+];
 const DEFAULT_OPENROUTER_MIN_REQUEST_INTERVAL_MS = 25000;
 const DEFAULT_OPENROUTER_RETRY_COOLDOWN_MS = 90000;
 const MIN_WORDS = 1100;
@@ -141,6 +146,21 @@ const readIntegerEnv = (key, fallback) => {
   const value = Number(process.env[key]);
   return Number.isFinite(value) && value >= 0 ? value : fallback;
 };
+
+const splitEnvList = (value) =>
+  String(value || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+const uniqueStrings = (values) => [...new Set(values.filter(Boolean))];
+
+const getOpenRouterModels = (primaryModel = process.env.OPENROUTER_MODEL || DEFAULT_MODEL) =>
+  uniqueStrings([
+    primaryModel,
+    ...splitEnvList(process.env.OPENROUTER_FALLBACK_MODELS),
+    ...DEFAULT_FALLBACK_MODELS,
+  ]);
 
 const readOpenRouterThrottleState = () => {
   if (!fs.existsSync(OPENROUTER_THROTTLE_PATH)) {
@@ -561,31 +581,50 @@ const summarizeEmptyOpenRouterResponse = (payload) => {
 
 const postOpenRouter = async (body) => {
   let lastErrorText = "";
+  const models = body.model ? getOpenRouterModels(body.model) : [DEFAULT_MODEL];
 
-  for (let attempt = 1; attempt <= 3; attempt += 1) {
-    await throttleOpenRouter();
+  for (const model of models) {
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+      await throttleOpenRouter();
 
-    const response = await fetch(process.env.OPENROUTER_API_BASE_URL || "https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": process.env.OPENROUTER_HTTP_REFERER || SITE_URL,
-        "X-Title": "Dreamy Decor Blog Maker",
-      },
-      body: JSON.stringify(body),
-    });
+      const response = await fetch(process.env.OPENROUTER_API_BASE_URL || "https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": process.env.OPENROUTER_HTTP_REFERER || SITE_URL,
+          "X-Title": "Dreamy Decor Blog Maker",
+        },
+        body: JSON.stringify({
+          ...body,
+          model,
+        }),
+      });
 
-    if (response.ok) {
-      return response.json();
+      if (response.ok) {
+        const payload = await response.json();
+        if (extractMessageContent(payload).includes("{")) {
+          if (model !== body.model) {
+            console.log(`OpenRouter model ${body.model} returned no usable JSON. Used fallback model ${model}.`);
+          }
+          return payload;
+        }
+
+        lastErrorText = `Model ${model} returned no usable JSON. Details: ${summarizeEmptyOpenRouterResponse(payload)}`;
+        break;
+      }
+
+      lastErrorText = `${response.status} ${response.statusText}\n${await response.text()}`;
+      if (![408, 429, 500, 502, 503, 504].includes(response.status) || attempt === 3) {
+        break;
+      }
+
+      await applyOpenRouterRetryCooldown(attempt, response.status);
     }
 
-    lastErrorText = `${response.status} ${response.statusText}\n${await response.text()}`;
-    if (![408, 429, 500, 502, 503, 504].includes(response.status) || attempt === 3) {
-      break;
+    if (models.length > 1) {
+      console.log(`OpenRouter model ${model} failed. Trying next fallback model...`);
     }
-
-    await applyOpenRouterRetryCooldown(attempt, response.status);
   }
 
   throw new Error(`OpenRouter request failed: ${lastErrorText}`);
@@ -594,10 +633,6 @@ const postOpenRouter = async (body) => {
 const requestBlog = async ({ imageUrl, keywordGuidance }) => {
   const payload = await postOpenRouter({
     model: process.env.OPENROUTER_MODEL || DEFAULT_MODEL,
-    reasoning: {
-      effort: "none",
-      exclude: true,
-    },
     response_format: {
       type: "json_object",
     },
@@ -625,10 +660,6 @@ const requestBlog = async ({ imageUrl, keywordGuidance }) => {
 const resizeBlog = async ({ blog, imageUrl, wordCount, keywordGuidance }) => {
   const payload = await postOpenRouter({
     model: process.env.OPENROUTER_MODEL || DEFAULT_MODEL,
-    reasoning: {
-      effort: "none",
-      exclude: true,
-    },
     response_format: {
       type: "json_object",
     },
@@ -653,10 +684,6 @@ const resizeBlog = async ({ blog, imageUrl, wordCount, keywordGuidance }) => {
 const repairMalformedBlogJson = async ({ sourceText, imageUrl, reason, keywordGuidance }) => {
   const payload = await postOpenRouter({
     model: process.env.OPENROUTER_MODEL || DEFAULT_MODEL,
-    reasoning: {
-      effort: "none",
-      exclude: true,
-    },
     response_format: {
       type: "json_object",
     },
@@ -681,10 +708,6 @@ const repairMalformedBlogJson = async ({ sourceText, imageUrl, reason, keywordGu
 const repairStructuredBlog = async ({ blog, imageUrl, reason, keywordGuidance }) => {
   const payload = await postOpenRouter({
     model: process.env.OPENROUTER_MODEL || DEFAULT_MODEL,
-    reasoning: {
-      effort: "none",
-      exclude: true,
-    },
     response_format: {
       type: "json_object",
     },

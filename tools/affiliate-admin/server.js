@@ -49,7 +49,7 @@ const PUBLIC_DIR = path.join(__dirname, "public");
 const PICKS_HUB_PATH = path.join(ROOT_DIR, "picks.html");
 const PORT = Number(process.env.PORT || 4311);
 const OPENROUTER_API_URL = process.env.OPENROUTER_API_BASE_URL || "https://openrouter.ai/api/v1/chat/completions";
-const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || "nvidia/nemotron-3-super-120b-a12b:free";
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || "google/gemini-2.5-flash-lite";
 const OPENROUTER_REFERER = process.env.OPENROUTER_HTTP_REFERER || SITE_URL;
 const OPENROUTER_TITLE = "Dreamy Decor Affiliate Admin";
 const SECTION_PAGE_CONFIG = [
@@ -489,7 +489,6 @@ function buildReviewRequestBody({ model, systemPrompt, userPrompt, attempt }) {
     model,
     temperature: attempt === 0 ? 0.2 : 0.1,
     max_completion_tokens: attempt === 0 ? 1200 : 1500,
-    reasoning: { effort: "none", exclude: true },
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: userPrompt },
@@ -688,6 +687,10 @@ function extractAvailability(html) {
 
   const text = cleanText(match?.[1] || "").toLowerCase();
   return text.includes("currently unavailable") || text.includes("out of stock") ? "OutOfStock" : "InStock";
+}
+
+function toPinterestAvailability(value) {
+  return value === "InStock" ? "instock" : "out of stock";
 }
 
 function extractImageSize(url) {
@@ -1010,13 +1013,32 @@ ${value.map((item) => `                <li>${escapeHtml(item)}</li>`).join("\n")
   }).join("\n");
 }
 
+function validateProductRichPinData(data) {
+  const missing = [];
+
+  if (!data.productUrl || !/^https?:\/\//i.test(data.productUrl)) missing.push("productUrl");
+  if (!data.affiliateUrl || !/^https?:\/\//i.test(data.affiliateUrl)) missing.push("affiliateUrl");
+  if (data.affiliateUrl === data.productUrl) missing.push("affiliateUrl");
+  if (!data.shortTitle) missing.push("shortTitle");
+  if (!data.metaDescription) missing.push("metaDescription");
+  if (!data.imageUrl || !/^https?:\/\//i.test(data.imageUrl)) missing.push("imageUrl");
+  if (!data.asin) missing.push("asin");
+  if (!data.brand) missing.push("brand");
+  if (!/^[0-9]+(?:\.[0-9]{2})$/.test(String(data.price || ""))) missing.push("price");
+  if (!["InStock", "OutOfStock"].includes(data.availability)) missing.push("availability");
+
+  if (missing.length) {
+    throw new Error(`Refusing to write invalid product Rich Pin page. Missing or invalid: ${missing.join(", ")}.`);
+  }
+}
+
 function renderProductPage(data) {
+  validateProductRichPinData(data);
+
   const gallery = renderGalleryMarkup(data);
-  const productMetaTags = data.price
-    ? `
+  const productMetaTags = `
     <meta property="product:price:amount" content="${escapeHtml(data.price)}" />
-    <meta property="product:price:currency" content="USD" />`
-    : "";
+    <meta property="product:price:currency" content="USD" />`;
 
   const productJson = {
     "@context": "https://schema.org",
@@ -1035,16 +1057,15 @@ function renderProductPage(data) {
     url: data.productUrl,
   };
 
-  if (data.price) {
-    productJson.offers.priceCurrency = "USD";
-    productJson.offers.price = data.price;
-  }
+  productJson.offers.priceCurrency = "USD";
+  productJson.offers.price = data.price;
 
   return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,follow" />
     <meta name="color-scheme" content="light" />
     <meta name="p:domain_verify" content="9c6037d438a25ef0f7bd7f38b3ce4d23" />
     <meta
@@ -1064,7 +1085,8 @@ ${renderOgImageTags(data)}
     <meta property="product:retailer_item_id" content="${escapeHtml(data.asin)}" />
     <meta property="product:brand" content="${escapeHtml(data.brand)}" />
     <meta property="product:condition" content="new" />
-    <meta property="product:availability" content="${data.availability === "InStock" ? "instock" : "oos"}" />${productMetaTags}
+    <meta property="og:availability" content="${escapeHtml(toPinterestAvailability(data.availability))}" />
+    <meta property="product:availability" content="${escapeHtml(toPinterestAvailability(data.availability))}" />${productMetaTags}
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${escapeHtml(data.ogTitle)}" />
@@ -1284,6 +1306,12 @@ async function analyzeAffiliateInput(input) {
   const sectionId = input.sectionId || inferSectionId(`${shortTitle} ${pathInfo.slugHint}`, sectionIds);
   const sectionLabel = sections.find((section) => section.id === sectionId)?.label || "Decor Picks";
   const price = extractMoney(html);
+  if (!price) {
+    throw new Error(
+      "Could not read a current Amazon price. Refusing to publish because Pinterest Product Rich Pins require product:price:amount and product:price:currency.",
+    );
+  }
+
   const review = await generateReviewContent({
     shortTitle,
     brand,

@@ -8,6 +8,15 @@ const { writeLatestPicksPage } = require("../generate-latest-picks");
 const { SITE_URL, toPublicUrl } = require("../site-config");
 
 const ROOT_DIR = path.resolve(__dirname, "..", "..");
+const GOOGLE_ANALYTICS_TAG = `    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z5QT5DSX6M"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-Z5QT5DSX6M');
+    </script>`;
 
 function loadEnvFile(filePath) {
   if (!fsSync.existsSync(filePath)) {
@@ -1109,6 +1118,7 @@ ${renderOgImageTags(data)}
       rel="stylesheet"
     />
     <link rel="stylesheet" href="static/style.css?v=20260215" />
+${GOOGLE_ANALYTICS_TAG}
   </head>
   <body>
     <div class="bg" aria-hidden="true"></div>

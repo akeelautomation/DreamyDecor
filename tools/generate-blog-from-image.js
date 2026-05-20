@@ -24,6 +24,15 @@ const DEFAULT_R2_UPLOAD_ATTEMPTS = 6;
 const DEFAULT_R2_UPLOAD_TIMEOUT_MS = 45000;
 const DEFAULT_R2_UPLOAD_RETRY_BASE_MS = 750;
 const DEFAULT_LOCK_STALE_MS = 20 * 60 * 1000;
+const GOOGLE_ANALYTICS_TAG = `    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z5QT5DSX6M"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-Z5QT5DSX6M');
+    </script>`;
 const MIN_WORDS = 1100;
 const MAX_WORDS = 1200;
 const MAX_KEYWORD_GUIDANCE_LENGTH = 2000;
@@ -1345,6 +1354,7 @@ const renderBlogPage = ({ blog, fileName, date }) => {
       rel="stylesheet"
     />
     <link rel="stylesheet" href="static/style.css?v=2026050702" />
+${GOOGLE_ANALYTICS_TAG}
   </head>
   <body>
     <div class="bg" aria-hidden="true"></div>

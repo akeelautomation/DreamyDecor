@@ -8,7 +8,7 @@ This site is wired for the Monetag In-Page Push banner tag:
 
 The same tag is inserted directly on `blog.html` and every `blog-*.html` article page. Policy pages, search, picks pages, and the home page do not load Monetag.
 
-The CSP allowlist includes the exact `nap5k.com` tag host plus the secondary support hosts used by Monetag's In-Page Push script. Obvious Onclick/Popcash-style hosts are intentionally not allowlisted unless Monetag confirms they are required for this clean banner zone.
+The CSP allowlist includes the exact `nap5k.com` tag host plus the secondary support hosts used by Monetag's In-Page Push script. Its request endpoint hosts `jhnwr.com` and `my.rtmark.net` are allowed for `connect-src` only. Obvious Onclick/Popcash-style hosts are intentionally not allowlisted unless Monetag confirms they are required for this clean banner zone.
 
 ## Dashboard Settings
 

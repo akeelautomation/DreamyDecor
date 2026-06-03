@@ -15,6 +15,10 @@ const MONETAG_IN_PAGE_PUSH_HOSTS = [
   "https://fleraprt.com",
   "https://tzegilo.com",
 ];
+const MONETAG_IN_PAGE_PUSH_CONNECT_HOSTS = [
+  "https://jhnwr.com",
+  "https://my.rtmark.net",
+];
 
 function baseCsp({ allowPayPal }) {
   const googleAnalyticsHosts = [
@@ -38,7 +42,7 @@ function baseCsp({ allowPayPal }) {
   const styleSrc = ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"];
   const fontSrc = ["'self'", "data:", "https://fonts.gstatic.com"];
   scriptSrc.push(...MONETAG_IN_PAGE_PUSH_HOSTS);
-  connectSrc.push(...MONETAG_IN_PAGE_PUSH_HOSTS);
+  connectSrc.push(...MONETAG_IN_PAGE_PUSH_HOSTS, ...MONETAG_IN_PAGE_PUSH_CONNECT_HOSTS);
   frameSrc.push(...MONETAG_IN_PAGE_PUSH_HOSTS);
   childSrc.push(...MONETAG_IN_PAGE_PUSH_HOSTS);
   imgSrc.push(...MONETAG_IN_PAGE_PUSH_HOSTS);

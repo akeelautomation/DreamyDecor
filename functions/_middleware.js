@@ -19,6 +19,10 @@ const MONETAG_IN_PAGE_PUSH_CONNECT_HOSTS = [
   "https://jhnwr.com",
   "https://my.rtmark.net",
 ];
+const MONETAG_IN_PAGE_PUSH_ALL_HOSTS = [
+  ...MONETAG_IN_PAGE_PUSH_HOSTS,
+  ...MONETAG_IN_PAGE_PUSH_CONNECT_HOSTS,
+];
 
 function baseCsp({ allowPayPal }) {
   const googleAnalyticsHosts = [
@@ -41,11 +45,11 @@ function baseCsp({ allowPayPal }) {
   ];
   const styleSrc = ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"];
   const fontSrc = ["'self'", "data:", "https://fonts.gstatic.com"];
-  scriptSrc.push(...MONETAG_IN_PAGE_PUSH_HOSTS);
-  connectSrc.push(...MONETAG_IN_PAGE_PUSH_HOSTS, ...MONETAG_IN_PAGE_PUSH_CONNECT_HOSTS);
-  frameSrc.push(...MONETAG_IN_PAGE_PUSH_HOSTS);
-  childSrc.push(...MONETAG_IN_PAGE_PUSH_HOSTS);
-  imgSrc.push(...MONETAG_IN_PAGE_PUSH_HOSTS);
+  scriptSrc.push(...MONETAG_IN_PAGE_PUSH_ALL_HOSTS);
+  connectSrc.push(...MONETAG_IN_PAGE_PUSH_ALL_HOSTS);
+  frameSrc.push(...MONETAG_IN_PAGE_PUSH_ALL_HOSTS);
+  childSrc.push(...MONETAG_IN_PAGE_PUSH_ALL_HOSTS);
+  imgSrc.push(...MONETAG_IN_PAGE_PUSH_ALL_HOSTS);
 
   if (allowPayPal) {
     // PayPal JS SDK CSP guidance:

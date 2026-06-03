@@ -1355,8 +1355,6 @@ const renderBlogPage = ({ blog, fileName, date }) => {
     />
     <link rel="stylesheet" href="static/style.css?v=2026060304" />
 ${GOOGLE_ANALYTICS_TAG}
-  <!-- Monetag In-Page Push banner -->
-  <script>(function(s){s.dataset.zone='11096150',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
   </head>
   <body>
     <div class="bg" aria-hidden="true"></div>
@@ -1423,6 +1421,8 @@ ${blog.checklist.map((item) => `              <li>${escapeHtml(item)}</li>`).joi
       </section>
     </main>
     <script src="static/site-search.js?v=20260401" defer></script>
+    <!-- Monetag In-Page Push banner -->
+    <script>(function(s){s.dataset.zone='11096150',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
   </body>
 </html>
 `;

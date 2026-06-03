@@ -1,4 +1,5 @@
 const BLOG_IMAGE_HOSTS = ["https://pub-72cdac497dcc43c08cff5703af3d8977.r2.dev"];
+const DEFAULT_MONETAG_SCRIPT_SRC = "https://n6wxm.com/vignette.min.js";
 
 function exactOrigins(raw) {
   return String(raw || "")
@@ -17,7 +18,7 @@ function exactOrigins(raw) {
 }
 
 function cleanMonetagScriptOrigin(env) {
-  const raw = String(env?.MONETAG_CLEAN_SCRIPT_SRC || "").trim();
+  const raw = String(env?.MONETAG_CLEAN_SCRIPT_SRC || DEFAULT_MONETAG_SCRIPT_SRC).trim();
   if (!raw) return "";
 
   try {

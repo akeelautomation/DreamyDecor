@@ -8,10 +8,11 @@
     }
   };
 
-  const loadScript = (src) =>
+  const loadScript = (src, zoneId) =>
     new Promise((resolve, reject) => {
       const script = document.createElement("script");
       script.async = true;
+      if (zoneId) script.dataset.zone = zoneId;
       script.src = src;
       script.onload = resolve;
       script.onerror = reject;
@@ -34,7 +35,7 @@
       }
 
       setState("ready");
-      return loadScript(config.sponsor.scriptSrc);
+      return loadScript(config.sponsor.scriptSrc, config.sponsor.zoneId);
     })
     .catch(() => {
       setState("disabled");

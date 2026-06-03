@@ -1683,9 +1683,6 @@ body{
 .sponsorUnit{
   display:none;
 }
-.sponsorUnit[data-sponsor-state="ready"]{
-  display:block;
-}
 .sponsorUnit--content{
   width:min(100%, 760px);
   min-height:96px;

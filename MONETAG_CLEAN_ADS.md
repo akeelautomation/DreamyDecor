@@ -1,6 +1,12 @@
 # Monetag Clean Ads Setup
 
-This site is wired for a low-disruption Monetag setup, but Monetag is disabled until a clean in-page/banner zone is configured.
+This site is wired for the Monetag Vignette banner tag:
+
+```html
+<script>(function(s){s.dataset.zone='11095985',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+```
+
+The site loads the same tag through `static/site-runtime.js` and `/api/site-options` instead of pasting inline third-party script into every page.
 
 ## Dashboard Settings
 
@@ -15,9 +21,9 @@ Set these only after Monetag gives you the exact clean-format script URL:
 
 ```env
 MONETAG_CLEAN_ADS=enabled
-MONETAG_CLEAN_SCRIPT_SRC=https://example.monetag-clean-zone-host/path/to/tag.js
-MONETAG_CLEAN_ZONE_ID=
-MONETAG_CLEAN_AD_ORIGINS=https://example.monetag-clean-zone-host
+MONETAG_CLEAN_SCRIPT_SRC=https://n6wxm.com/vignette.min.js
+MONETAG_CLEAN_ZONE_ID=11095985
+MONETAG_CLEAN_AD_ORIGINS=https://n6wxm.com
 ```
 
 `MONETAG_CLEAN_SCRIPT_SRC` must be HTTPS and must not point to a service worker. `MONETAG_CLEAN_AD_ORIGINS` should list only exact origins required by the final clean tag, separated by commas.

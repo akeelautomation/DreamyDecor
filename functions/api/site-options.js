@@ -1,4 +1,6 @@
 const clean = (value) => String(value || "").trim();
+const DEFAULT_MONETAG_SCRIPT_SRC = "https://n6wxm.com/vignette.min.js";
+const DEFAULT_MONETAG_ZONE_ID = "11095985";
 
 const isEnabled = (value) => {
   const normalized = clean(value).toLowerCase();
@@ -21,14 +23,15 @@ const cleanScriptSrc = (value) => {
 };
 
 export const onRequestGet = async ({ env }) => {
-  const scriptSrc = cleanScriptSrc(env?.MONETAG_CLEAN_SCRIPT_SRC);
-  const enabled = isEnabled(env?.MONETAG_CLEAN_ADS) && Boolean(scriptSrc);
+  const scriptSrc = cleanScriptSrc(env?.MONETAG_CLEAN_SCRIPT_SRC || DEFAULT_MONETAG_SCRIPT_SRC);
+  const enabled = isEnabled(env?.MONETAG_CLEAN_ADS || "enabled") && Boolean(scriptSrc);
+  const zoneId = clean(env?.MONETAG_CLEAN_ZONE_ID || DEFAULT_MONETAG_ZONE_ID);
 
   return Response.json({
     sponsor: {
       enabled,
       scriptSrc: enabled ? scriptSrc : "",
-      zoneId: enabled ? clean(env?.MONETAG_CLEAN_ZONE_ID) : "",
+      zoneId: enabled ? zoneId : "",
     },
   });
 };

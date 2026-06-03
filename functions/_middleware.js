@@ -1,38 +1,7 @@
 const BLOG_IMAGE_HOSTS = ["https://pub-72cdac497dcc43c08cff5703af3d8977.r2.dev"];
-const DEFAULT_MONETAG_SCRIPT_SRC = "https://n6wxm.com/vignette.min.js";
+const MONETAG_VIGNETTE_HOST = "https://n6wxm.com";
 
-function exactOrigins(raw) {
-  return String(raw || "")
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean)
-    .map((value) => {
-      try {
-        const url = new URL(value);
-        return url.protocol === "https:" ? url.origin : "";
-      } catch {
-        return "";
-      }
-    })
-    .filter(Boolean);
-}
-
-function cleanMonetagScriptOrigin(env) {
-  const raw = String(env?.MONETAG_CLEAN_SCRIPT_SRC || DEFAULT_MONETAG_SCRIPT_SRC).trim();
-  if (!raw) return "";
-
-  try {
-    const url = new URL(raw);
-    const pathname = url.pathname.toLowerCase();
-    if (url.protocol !== "https:") return "";
-    if (pathname.endsWith("/sw.js") || pathname.includes("service-worker")) return "";
-    return url.origin;
-  } catch {
-    return "";
-  }
-}
-
-function baseCsp({ allowPayPal, env }) {
+function baseCsp({ allowPayPal }) {
   const googleAnalyticsHosts = [
     "https://www.googletagmanager.com",
     "https://www.google-analytics.com",
@@ -53,18 +22,11 @@ function baseCsp({ allowPayPal, env }) {
   ];
   const styleSrc = ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"];
   const fontSrc = ["'self'", "data:", "https://fonts.gstatic.com"];
-  const monetagOrigins = [
-    cleanMonetagScriptOrigin(env),
-    ...exactOrigins(env?.MONETAG_CLEAN_AD_ORIGINS),
-  ].filter(Boolean);
-
-  if (monetagOrigins.length) {
-    scriptSrc.push(...monetagOrigins);
-    connectSrc.push(...monetagOrigins);
-    frameSrc.push(...monetagOrigins);
-    childSrc.push(...monetagOrigins);
-    imgSrc.push(...monetagOrigins);
-  }
+  scriptSrc.push(MONETAG_VIGNETTE_HOST);
+  connectSrc.push(MONETAG_VIGNETTE_HOST);
+  frameSrc.push(MONETAG_VIGNETTE_HOST);
+  childSrc.push(MONETAG_VIGNETTE_HOST);
+  imgSrc.push(MONETAG_VIGNETTE_HOST);
 
   if (allowPayPal) {
     // PayPal JS SDK CSP guidance:
@@ -122,7 +84,7 @@ export async function onRequest(context) {
   headers.set("Cross-Origin-Opener-Policy", allowPayPal ? "same-origin-allow-popups" : "same-origin");
   headers.set("Cross-Origin-Resource-Policy", "same-origin");
 
-  headers.set("Content-Security-Policy", baseCsp({ allowPayPal, env }));
+  headers.set("Content-Security-Policy", baseCsp({ allowPayPal }));
 
   if (url.pathname.startsWith("/api/")) {
     headers.set("Cache-Control", "no-store");

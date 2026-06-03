@@ -15,7 +15,7 @@ This repo is built for **Cloudflare Pages**:
 
 ## Clean Monetag Ads
 
-Monetag is prepared as a disabled-by-default, clean-format integration. Use only an in-page/banner-style zone, not MultiTag, Push Notifications, Onclick/Popunder, Direct Link/SmartLink, or service-worker ads. Setup details are in `MONETAG_CLEAN_ADS.md`.
+Monetag is installed on blog pages with the Vignette banner format only. Do not use MultiTag, Push Notifications, Onclick/Popunder, Direct Link/SmartLink, or service-worker ad formats. Setup and moderation notes are in `MONETAG_CLEAN_ADS.md`.
 
 Cloudflare Pages settings (typical):
 - Build command: *(none)*

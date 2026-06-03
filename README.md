@@ -13,6 +13,10 @@ This repo is built for **Cloudflare Pages**:
 - Static frontend: `index.html` + `static/*`
 - Backend: Cloudflare Pages Functions in `functions/*` (`/api/*`)
 
+## Clean Monetag Ads
+
+Monetag is prepared as a disabled-by-default, clean-format integration. Use only an in-page/banner-style zone, not MultiTag, Push Notifications, Onclick/Popunder, Direct Link/SmartLink, or service-worker ads. Setup details are in `MONETAG_CLEAN_ADS.md`.
+
 Cloudflare Pages settings (typical):
 - Build command: *(none)*
 - Output directory: `/` (repo root)

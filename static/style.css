@@ -1680,6 +1680,33 @@ body{
 .footBrand{font-family:var(--display); font-weight:900; letter-spacing:.08em}
 .footNote{font-size:12px; margin-top:6px}
 
+.sponsorUnit{
+  display:none;
+}
+.sponsorUnit[data-sponsor-state="ready"]{
+  display:block;
+}
+.sponsorUnit--content{
+  width:min(100%, 760px);
+  min-height:96px;
+  margin:24px auto 10px;
+  border:1px solid rgba(20,18,26,.10);
+  border-radius:8px;
+  background:rgba(255,255,255,.56);
+  overflow:hidden;
+  position:relative;
+}
+.sponsorUnit--content::before{
+  content:"Advertisement";
+  position:absolute;
+  top:8px;
+  left:10px;
+  font-size:10px;
+  line-height:1;
+  color:rgba(20,18,26,.48);
+  text-transform:uppercase;
+}
+
 .toast{
   position:absolute;
   left:18px;

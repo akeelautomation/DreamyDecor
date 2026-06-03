@@ -1,5 +1,5 @@
 const BLOG_IMAGE_HOSTS = ["https://pub-72cdac497dcc43c08cff5703af3d8977.r2.dev"];
-const MONETAG_VIGNETTE_HOST = "https://n6wxm.com";
+const MONETAG_IN_PAGE_PUSH_HOST = "https://nap5k.com";
 
 function baseCsp({ allowPayPal }) {
   const googleAnalyticsHosts = [
@@ -22,11 +22,11 @@ function baseCsp({ allowPayPal }) {
   ];
   const styleSrc = ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"];
   const fontSrc = ["'self'", "data:", "https://fonts.gstatic.com"];
-  scriptSrc.push(MONETAG_VIGNETTE_HOST);
-  connectSrc.push(MONETAG_VIGNETTE_HOST);
-  frameSrc.push(MONETAG_VIGNETTE_HOST);
-  childSrc.push(MONETAG_VIGNETTE_HOST);
-  imgSrc.push(MONETAG_VIGNETTE_HOST);
+  scriptSrc.push(MONETAG_IN_PAGE_PUSH_HOST);
+  connectSrc.push(MONETAG_IN_PAGE_PUSH_HOST);
+  frameSrc.push(MONETAG_IN_PAGE_PUSH_HOST);
+  childSrc.push(MONETAG_IN_PAGE_PUSH_HOST);
+  imgSrc.push(MONETAG_IN_PAGE_PUSH_HOST);
 
   if (allowPayPal) {
     // PayPal JS SDK CSP guidance:

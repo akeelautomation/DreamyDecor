@@ -1,9 +1,9 @@
 # Monetag Clean Ads Setup
 
-This site is wired for the Monetag Vignette banner tag:
+This site is wired for the Monetag In-Page Push banner tag:
 
 ```html
-<script>(function(s){s.dataset.zone='11095985',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+<script>(function(s){s.dataset.zone='11096150',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 ```
 
 The same tag is inserted directly on `blog.html` and every `blog-*.html` article page. Policy pages, search, picks pages, and the home page do not load Monetag.

@@ -6,9 +6,9 @@ This site is wired for the Monetag In-Page Push banner tag:
 <script>(function(s){s.dataset.zone='11096150',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 ```
 
-The same tag is inserted directly on `blog.html` and every `blog-*.html` article page. Policy pages, search, picks pages, and the home page do not load Monetag.
+The same tag is inserted directly in the `<head>` on `blog.html` and every `blog-*.html` article page. Policy pages, search, picks pages, and the home page do not load Monetag.
 
-Blog pages also load `static/blog-ad-placements.js`, which creates a left-side desktop ad rail and a mid-article mobile placement. These slots show an internal sponsored fallback when Monetag returns `204 No Content` and does not inject a creative.
+The visible position of Monetag In-Page Push creatives is controlled by Monetag. Ask Monetag support to move zone `11096150` to the left side on desktop and a centered in-article/mobile placement if that position is required.
 
 The CSP allowlist includes the exact `nap5k.com` tag host plus the secondary support hosts used by Monetag's In-Page Push script. Its request endpoint hosts `jhnwr.com` and `my.rtmark.net` are allowed for `connect-src` only. Obvious Onclick/Popcash-style hosts are intentionally not allowlisted unless Monetag confirms they are required for this clean banner zone.
 

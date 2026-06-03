@@ -1353,7 +1353,7 @@ const renderBlogPage = ({ blog, fileName, date }) => {
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600..900&family=Space+Grotesk:wght@400..700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="static/style.css?v=2026050702" />
+    <link rel="stylesheet" href="static/style.css?v=2026060303" />
 ${GOOGLE_ANALYTICS_TAG}
   </head>
   <body>
@@ -1420,7 +1420,10 @@ ${blog.checklist.map((item) => `              <li>${escapeHtml(item)}</li>`).joi
         </div>
       </section>
     </main>
+    <script src="static/blog-ad-placements.js?v=2026060301" defer></script>
     <script src="static/site-search.js?v=20260401" defer></script>
+  <!-- Monetag In-Page Push banner -->
+  <script>(function(s){s.dataset.zone='11096150',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
   </body>
 </html>
 `;

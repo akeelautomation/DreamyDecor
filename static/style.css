@@ -1087,6 +1087,66 @@ body{
 .prose ul{padding-left:18px}
 .prose a{color:var(--ink)}
 .prose strong{color:rgba(20,18,26,.88)}
+.blogAdRail{
+  display:none;
+  position:fixed;
+  z-index:20;
+  top:136px;
+  left:max(12px, calc((100vw - 980px) / 2 - clamp(118px, 10vw, 172px) - 20px));
+  width:clamp(118px, 10vw, 172px);
+}
+.blogAdInline{display:none}
+.blogAdCard{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-height:188px;
+  padding:12px;
+  border-radius:8px;
+  border:1px solid rgba(20,18,26,.16);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.90), rgba(255,255,255,.70)),
+    radial-gradient(140px 120px at 20% 0%, rgba(185,95,59,.22), transparent 70%),
+    radial-gradient(160px 120px at 100% 100%, rgba(47,124,114,.18), transparent 72%);
+  box-shadow:0 18px 42px rgba(20,18,26,.16);
+  color:var(--ink);
+  text-decoration:none;
+}
+.blogAdCard__label{
+  align-self:flex-start;
+  padding:5px 7px;
+  border-radius:999px;
+  background:rgba(20,18,26,.08);
+  color:rgba(20,18,26,.62);
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.blogAdCard__title{
+  font-family:var(--display);
+  font-size:22px;
+  line-height:1.05;
+  letter-spacing:0;
+  font-weight:900;
+}
+.blogAdCard__copy{
+  color:rgba(20,18,26,.68);
+  font-size:12px;
+  line-height:1.4;
+}
+.blogAdCard__cta{
+  margin-top:auto;
+  display:inline-flex;
+  width:max-content;
+  max-width:100%;
+  padding:8px 10px;
+  border-radius:999px;
+  background:rgba(20,18,26,.88);
+  color:rgba(255,255,255,.92);
+  font-size:12px;
+  font-weight:900;
+}
 .blogHeroImage{
   margin:14px 0 16px;
   overflow:hidden;
@@ -1742,6 +1802,23 @@ body{
   .pickDetail{grid-template-columns:1fr}
   .postGrid{grid-template-columns:1fr}
   .ctaBand{flex-direction:column; align-items:stretch}
+}
+
+@media (min-width: 1280px){
+  .blogAdRail{display:block}
+}
+
+@media (max-width: 760px){
+  .blogAdInline{
+    display:block;
+    margin:22px 0;
+  }
+  .blogAdInline .blogAdCard{
+    min-height:154px;
+  }
+  .blogAdInline .blogAdCard__title{
+    font-size:24px;
+  }
 }
 
 @media (max-width: 520px){

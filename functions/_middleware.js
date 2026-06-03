@@ -1,5 +1,20 @@
 const BLOG_IMAGE_HOSTS = ["https://pub-72cdac497dcc43c08cff5703af3d8977.r2.dev"];
-const MONETAG_IN_PAGE_PUSH_HOST = "https://nap5k.com";
+const MONETAG_IN_PAGE_PUSH_HOSTS = [
+  "https://nap5k.com",
+  "https://inpage-push.com",
+  "https://moneymakercdn.com",
+  "https://asacdn.com",
+  "https://acscdn.com",
+  "https://acacdn.com",
+  "https://acdcdn.com",
+  "https://achcdn.com",
+  "https://befirstcdn.com",
+  "https://commercialvalue.org",
+  "https://ucdnondemandptimecdn.com",
+  "https://fbcdn2.com",
+  "https://fleraprt.com",
+  "https://tzegilo.com",
+];
 
 function baseCsp({ allowPayPal }) {
   const googleAnalyticsHosts = [
@@ -22,11 +37,11 @@ function baseCsp({ allowPayPal }) {
   ];
   const styleSrc = ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"];
   const fontSrc = ["'self'", "data:", "https://fonts.gstatic.com"];
-  scriptSrc.push(MONETAG_IN_PAGE_PUSH_HOST);
-  connectSrc.push(MONETAG_IN_PAGE_PUSH_HOST);
-  frameSrc.push(MONETAG_IN_PAGE_PUSH_HOST);
-  childSrc.push(MONETAG_IN_PAGE_PUSH_HOST);
-  imgSrc.push(MONETAG_IN_PAGE_PUSH_HOST);
+  scriptSrc.push(...MONETAG_IN_PAGE_PUSH_HOSTS);
+  connectSrc.push(...MONETAG_IN_PAGE_PUSH_HOSTS);
+  frameSrc.push(...MONETAG_IN_PAGE_PUSH_HOSTS);
+  childSrc.push(...MONETAG_IN_PAGE_PUSH_HOSTS);
+  imgSrc.push(...MONETAG_IN_PAGE_PUSH_HOSTS);
 
   if (allowPayPal) {
     // PayPal JS SDK CSP guidance:
